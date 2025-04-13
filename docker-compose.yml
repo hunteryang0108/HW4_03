@@ -1,0 +1,61 @@
+services:
+  composer:
+    container_name: composer
+    image: composer
+    working_dir: /var/www/laravel
+    command: bash -c "composer self-update && composer install
+      && composer run post-root-package-install
+      && composer run post-create-project-cmd
+      && chmod -R a+w ./bootstrap/cache ./storage ./database/database.sqlite"
+    volumes:
+      - .:/var/www/laravel
+    deploy:
+      replicas: 0
+
+  laravel:
+    container_name: laravel
+    image: php:8.2-fpm-alpine
+    networks:
+      - laravel
+    working_dir: /var/www/laravel
+    volumes:
+      - .:/var/www/laravel
+    expose:
+      - "9000"
+    restart: unless-stopped
+
+  nginx:
+    container_name: nginx
+    image: nginx:stable-alpine
+    networks:
+      - laravel
+    working_dir: /var/www/laravel
+    depends_on:
+      - laravel
+    volumes:
+      - ./nginx.conf:/etc/nginx/conf.d/default.conf
+      - ./public:/var/www/laravel/public
+    ports:
+      - "80:80"
+    restart: unless-stopped
+
+  vite:
+    container_name: vite
+    image: dev:build
+    build:
+      context: .
+      dockerfile: Dockerfile
+    working_dir: /var/www/laravel
+    command: bash -c "composer run dev"
+    volumes:
+      - .:/var/www/laravel
+      - ./server.hmr:/server.hmr
+    ports:
+      - "127.0.0.1:8000:8000"
+      - "127.0.0.1:5173:5173"
+    #deploy:
+    #  replicas: 0
+
+networks:
+  laravel:
+    driver: bridge
