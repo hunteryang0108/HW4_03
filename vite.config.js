@@ -24,7 +24,7 @@ export default defineConfig({
             plugins: [
                 prefixer({
                     prefix: "bs-",
-                    includeFiles: ["bootstrap.css"],
+                    includeFiles: ["bootstrap.min.css"],
                     skipGlobalSelectors: true,
                     transform(prefix, selector, prefixedSelector, filePath, rule) {
                         return selector.replace(/\.([\w-]+)/g, ".bs-$1");
