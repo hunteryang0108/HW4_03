@@ -1,16 +1,18 @@
-.PHONY: build clean up down reup start stop restart composer npm laravel nginx vite
+.PHONY: build clean up down reup start stop restart composer npm laravel nginx dev
+
+DOCKER_COMPOSE := $(if $(shell command -v docker-compose), docker-compose, docker compose)
 
 build: composer npm up
 
 clean:
-	@docker compose down --rmi all
+	@$(DOCKER_COMPOSE) down --rmi all
 	@docker system prune --all -f
 
 up:
-	@docker compose up -d 
+	@$(DOCKER_COMPOSE) up -d 
 
 down:
-	@docker compose down
+	@$(DOCKER_COMPOSE) down
 
 reup: down up
 
@@ -23,16 +25,16 @@ stop:
 restart: stop start
 
 composer:
-	@docker compose run --rm composer
+	@$(DOCKER_COMPOSE) run --rm composer
 
 npm:
-	@docker compose run --rm vite bash -c "npm install && npm audit fix && npm run build"
+	@$(DOCKER_COMPOSE) run --rm vite bash -c "npm install && npm audit fix && npm run build"
 
 laravel:
-	@docker compose exec laravel sh
+	@$(DOCKER_COMPOSE) exec laravel sh
 
 nginx:
-	@docker compose exec nginx sh
+	@$(DOCKER_COMPOSE) exec nginx sh
 
-vite:
-	@docker compose exec vite bash
+dev:
+	@$(DOCKER_COMPOSE) exec vite bash
