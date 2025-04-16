@@ -6,7 +6,7 @@ services:
     command: bash -c "composer self-update && composer install
       && composer run post-root-package-install
       && composer run post-create-project-cmd
-      && chmod -R a+w ./bootstrap/cache ./storage ./database/database.sqlite"
+      && chmod -R a+w ./bootstrap/cache ./storage ./database"
     volumes:
       - .:/var/www/laravel
     deploy:
