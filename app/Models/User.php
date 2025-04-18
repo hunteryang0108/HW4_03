@@ -64,11 +64,6 @@ class User extends Authenticatable
         return $this->hasOne(NewProfile::class, 'user_id');
     }
     
-    //  one-to-many relationship with Comment
-    // public function comments(): HasMany
-    // {
-    //     return $this->hasMany(Comment::class);
-    // }
 
     /**
      * Get the posts for the user.

@@ -9,17 +9,15 @@ use App\Models\NewProfile;
 
 class NewProfileController extends Controller
 {
-    public function index()
-    {
-        return view('new-profile');
-    }
-
     /**
      * 顯示使用者的個人檔案。
      */
     public function show(User $user)
     {
-        return view('profile.show', compact('user'));
+        // 獲取當前用戶的所有留言
+        $comments = $user->comments()->latest()->get(); // 這裡按照留言時間排序，最新的留言排前面
+
+        return view('profile.show', compact('user', 'comments'));
     }
 
     /**
