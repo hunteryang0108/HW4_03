@@ -4,7 +4,7 @@
     'value' => '',
 ])
 
-<div {{ $attributes->where('class', '')->merge(['class' => 'mb-4']) }}>
+<div class="mb-4 {{ $attributes->get('class') }}">
     @if($label)
         <label class="block text-sm font-medium text-zinc-700 dark:text-zinc-300 mb-1">
             {{ $label }}
