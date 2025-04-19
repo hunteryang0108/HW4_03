@@ -14,7 +14,10 @@
             <flux:navbar class="-mb-px max-lg:hidden">
                 <flux:navbar.item icon="layout-grid" :href="route('dashboard')" :current="request()->routeIs('dashboard')" wire:navigate>
                     {{ __('Dashboard') }}
-                </flux:navbar.item>
+                 </flux:navbar.item>
+                <flux:navbar.item icon="document-text" :href="route('posts.index')" :current="request()->routeIs('posts.*')" wire:navigate>
+                    {{ __('文章') }}
+                 </flux:navbar.item>
             </flux:navbar>
 
             <flux:spacer />
@@ -100,6 +103,9 @@
                 <flux:navlist.group :heading="__('Platform')">
                     <flux:navlist.item icon="layout-grid" :href="route('dashboard')" :current="request()->routeIs('dashboard')" wire:navigate>
                     {{ __('Dashboard') }}
+                    </flux:navlist.item>
+                    <flux:navlist.item icon="document-text" :href="route('posts.index')" :current="request()->routeIs('posts.*')" wire:navigate>
+                    {{ __('文章') }}
                     </flux:navlist.item>
                 </flux:navlist.group>
             </flux:navlist>
