@@ -1,4 +1,3 @@
-
 <?php
 
 use App\Models\Post;
@@ -14,7 +13,7 @@ new #[Layout('components.layouts.app')] class extends Component {
     
     public function mount(Post $post)
     {
-        $this->post = $post->load(['user', 'comments.user']);
+        $this->post = $post->load(['user', 'comments.user', 'tags']);
     }
     
     public function addComment()
@@ -49,6 +48,16 @@ new #[Layout('components.layouts.app')] class extends Component {
             <span class="mx-2">·</span>
             <span>{{ $post->category }}</span>
         </div>
+        
+        @if($post->tags->count() > 0)
+        <div class="flex flex-wrap gap-1 mb-4">
+            @foreach($post->tags as $tag)
+            <a href="{{ route('post.index', ['tag' => $tag->slug]) }}" wire:navigate class="inline-flex items-center px-2 py-1 rounded-full text-xs font-medium bg-zinc-100 dark:bg-zinc-700 hover:bg-zinc-200 dark:hover:bg-zinc-600">
+                {{ $tag->name }}
+            </a>
+            @endforeach
+        </div>
+        @endif
         
         <div class="prose prose-zinc dark:prose-invert max-w-none">
             {!! nl2br(e($post->content)) !!}

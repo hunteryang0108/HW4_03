@@ -1,7 +1,7 @@
-
 <?php
 
 use App\Models\Post;
+use App\Models\Tag;
 use Livewire\Attributes\Layout;
 use Livewire\Attributes\Rule;
 use Livewire\Volt\Component;
@@ -22,6 +22,9 @@ new #[Layout('components.layouts.app')] class extends Component {
     #[Rule('required')]
     public $category = '';
     
+    #[Rule('nullable|string')]
+    public $tags = '';
+    
     #[Rule('nullable|image|max:2048')]
     public $image = null;
     
@@ -33,6 +36,8 @@ new #[Layout('components.layouts.app')] class extends Component {
             $this->title = $post->title;
             $this->content = $post->content;
             $this->category = $post->category;
+            // 加載標籤
+            $this->tags = $post->tags->pluck('name')->implode(',');
         }
     }
     
@@ -53,9 +58,23 @@ new #[Layout('components.layouts.app')] class extends Component {
         if ($this->isEdit) {
             $this->post->update($data);
             $postId = $this->post->id;
+            
+            // 更新標籤
+            if ($this->tags) {
+                $tagNames = explode(',', $this->tags);
+                $this->post->syncTagNames($tagNames);
+            } else {
+                $this->post->tags()->detach();
+            }
         } else {
             $post = auth()->user()->posts()->create($data);
             $postId = $post->id;
+            
+            // 處理標籤
+            if ($this->tags) {
+                $tagNames = explode(',', $this->tags);
+                $post->syncTagNames($tagNames);
+            }
         }
         
         $this->redirect(route('post.show', $postId), navigate: true);
@@ -67,6 +86,7 @@ new #[Layout('components.layouts.app')] class extends Component {
             'categories' => [
                 '一般討論', '問題求助', '技術分享', '課程討論', '閒聊'
             ],
+            'allTags' => Tag::orderBy('name')->get()
         ];
     }
 }; ?>
@@ -99,6 +119,18 @@ new #[Layout('components.layouts.app')] class extends Component {
                     <option value="{{ $cat }}">{{ $cat }}</option>
                 @endforeach
             </flux:select>
+            
+            <div>
+                <label class="block text-sm font-medium text-zinc-700 dark:text-zinc-300 mb-1">標籤</label>
+                <input
+                    wire:model="tags"
+                    type="text"
+                    id="tags"
+                    class="w-full px-3 py-2 border border-zinc-300 rounded-md shadow-sm focus:outline-none focus:ring-2 focus:ring-zinc-500 focus:border-zinc-500 dark:bg-zinc-700 dark:border-zinc-600 dark:text-white"
+                    placeholder="使用逗號分隔多個標籤"
+                />
+                <p class="text-sm text-zinc-600 dark:text-zinc-400 mt-1">例如：Laravel,PHP,教學</p>
+            </div>
             
             <flux:textarea 
                 wire:model="content" 

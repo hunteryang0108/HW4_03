@@ -10,7 +10,9 @@ class TagController extends Controller
     // 獲取所有標籤（API用）
     public function index()
     {
-        $tags = Tag::orderBy('name')->get();
+        $tags = Tag::orderBy('posts_count', 'desc')
+              ->take(50)
+              ->get(['id', 'name', 'slug']);
         return response()->json($tags);
     }
     
@@ -21,7 +23,7 @@ class TagController extends Controller
         $tags = Tag::where('name', 'like', "%{$query}%")
                   ->orderBy('posts_count', 'desc')
                   ->take(10)
-                  ->get();
+                  ->get(['id', 'name', 'slug']);
                   
         return response()->json($tags);
     }
