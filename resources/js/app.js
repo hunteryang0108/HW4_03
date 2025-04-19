@@ -4,6 +4,15 @@ import '@yaireo/tagify/dist/tagify.css';
 
 // 當頁面載入完成時，初始化 Tagify
 document.addEventListener('DOMContentLoaded', function() {
+    initializeTagify();
+    
+    // 監聽 Livewire 事件，以處理動態加載的頁面
+    document.addEventListener('livewire:navigated', function() {
+        initializeTagify();
+    });
+});
+
+function initializeTagify() {
     const tagsInput = document.getElementById('tags');
     
     // 如果有標籤輸入框，初始化 Tagify
@@ -44,4 +53,4 @@ document.addEventListener('DOMContentLoaded', function() {
                 });
         });
     }
-});
+}

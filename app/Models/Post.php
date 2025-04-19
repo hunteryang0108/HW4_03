@@ -35,16 +35,42 @@ class Post extends Model
         return $this->hasMany(Comment::class);
     }
     
-    // 同步標籤名稱（輸入標籤名稱陣列）
+   // 在 app/Models/Post.php 文件中
     public function syncTagNames(array $tagNames)
     {
-        $tags = collect($tagNames)->map(function ($tagName) {
-            return Tag::firstOrCreate(['name' => trim($tagName)]);
-        });
+        $processedTagNames = [];
+        
+        foreach ($tagNames as $tagName) {
+            // 處理可能的不同格式
+            if (is_array($tagName) && isset($tagName['value'])) {
+                // 如果是數組直接取 value
+                $processedTagNames[] = $tagName['value'];
+            } elseif (is_string($tagName)) {
+                // 如果是字符串判斷是否為 JSON
+                if (str_starts_with(trim($tagName), '{')) {
+                    $decoded = json_decode($tagName, true);
+                    if (json_last_error() === JSON_ERROR_NONE && isset($decoded['value'])) {
+                        $processedTagNames[] = $decoded['value'];
+                    } else {
+                        $processedTagNames[] = trim($tagName);
+                    }
+                } else {
+                    $processedTagNames[] = trim($tagName);
+                }
+            }
+        }
+        
+        // 過濾空值
+        $processedTagNames = array_filter($processedTagNames, fn($name) => !empty($name));
+        
+        // 創建標籤並同步
+        $tags = collect($processedTagNames)->map(fn($name) => 
+            Tag::firstOrCreate(['name' => $name])
+        );
         
         $this->tags()->sync($tags->pluck('id'));
         
-        // 更新標籤的文章計數
+        // 更新標籤計數
         Tag::withCount('posts')->get()->each(function ($tag) {
             $tag->posts_count = $tag->posts_count;
             $tag->save();

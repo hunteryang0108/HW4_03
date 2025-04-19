@@ -1,7 +1,7 @@
-
 <?php
 
 use App\Models\Post;
+use App\Models\Tag;
 use Livewire\Attributes\Layout;
 use Livewire\Volt\Component;
 use Livewire\WithPagination;
@@ -10,15 +10,22 @@ new #[Layout('components.layouts.app')] class extends Component {
     use WithPagination;
 
     public $category = '';
+    public $tag = '';
 
     public function with(): array
     {
         $query = Post::where('deleted', false)
-            ->with('user')
+            ->with(['user', 'tags'])
             ->orderBy('created_at', 'desc');
             
         if ($this->category) {
             $query->where('category', $this->category);
+        }
+        
+        if ($this->tag) {
+            $query->whereHas('tags', function ($q) {
+                $q->where('slug', $this->tag);
+            });
         }
         
         return [
@@ -26,8 +33,24 @@ new #[Layout('components.layouts.app')] class extends Component {
             'categories' => Post::where('deleted', false)
                 ->select('category')
                 ->distinct()
-                ->pluck('category')
+                ->pluck('category'),
+            'tags' => Tag::orderBy('posts_count', 'desc')
+                ->take(20)
+                ->get()
         ];
+    }
+    
+    public function setTag($tag)
+    {
+        $this->tag = $tag;
+        $this->resetPage();
+    }
+    
+    public function resetFilters()
+    {
+        $this->category = '';
+        $this->tag = '';
+        $this->resetPage();
     }
 }; ?>
 
@@ -38,8 +61,8 @@ new #[Layout('components.layouts.app')] class extends Component {
     </div>
 
     <div class="flex justify-between mb-6">
-        <div class="flex gap-2">
-            <flux:button variant="{{ $category === '' ? 'primary' : 'outline' }}" wire:click="$set('category', '')">
+        <div class="flex flex-wrap gap-2">
+            <flux:button variant="{{ !$category && !$tag ? 'primary' : 'outline' }}" wire:click="resetFilters">
                 全部
             </flux:button>
             
@@ -54,6 +77,19 @@ new #[Layout('components.layouts.app')] class extends Component {
             新增貼文
         </flux:button>
     </div>
+    
+    @if(count($tags) > 0)
+    <div class="mb-6">
+        <div class="text-sm font-medium text-zinc-600 dark:text-zinc-400 mb-2">熱門標籤：</div>
+        <div class="flex flex-wrap gap-2">
+            @foreach($tags as $tagItem)
+                <flux:button size="sm" variant="{{ $tag === $tagItem->slug ? 'primary' : 'outline' }}" wire:click="setTag('{{ $tagItem->slug }}')">
+                    {{ $tagItem->name }}
+                </flux:button>
+            @endforeach
+        </div>
+    </div>
+    @endif
 
     <div class="grid gap-4">
         @forelse($posts as $post)
@@ -68,6 +104,16 @@ new #[Layout('components.layouts.app')] class extends Component {
                     <span class="mx-2">·</span>
                     <span>{{ $post->category }}</span>
                 </div>
+                
+                @if($post->tags->count() > 0)
+                <div class="flex flex-wrap gap-1 mb-2">
+                    @foreach($post->tags as $tagItem)
+                    <span class="inline-flex items-center px-2 py-1 rounded-full text-xs font-medium bg-zinc-100 dark:bg-zinc-700">
+                        {{ $tagItem->name }}
+                    </span>
+                    @endforeach
+                </div>
+                @endif
                 
                 <p class="mb-2">{{ \Illuminate\Support\Str::limit($post->content, 150) }}</p>
                 

@@ -23,15 +23,14 @@ Route::middleware(['auth'])->group(function () {
     Volt::route('settings/password', 'settings.password')->name('settings.password');
     Volt::route('settings/appearance', 'settings.appearance')->name('settings.appearance');
 
-    // 文章相關路由 - 使用 middleware 確保只有登入用戶能訪問
+    // 文章相關路由
     Route::resource('posts', PostController::class);
-    Route::get('/posts/{post}/image', [PostController::class, 'image'])->name('posts.image');
-
-    // 留言相關路由 - 同樣使用 middleware 確保只有登入用戶能訪問
-    Route::post('/posts/{post}/comments', [CommentController::class, 'store'])->name('comments.store');
-    Route::get('/comments/{comment}/edit', [CommentController::class, 'edit'])->name('comments.edit');
-    Route::put('/comments/{comment}', [CommentController::class, 'update'])->name('comments.update');
-    Route::delete('/comments/{comment}', [CommentController::class, 'destroy'])->name('comments.destroy');
+    
+    // Livewire 版的留言板路由
+    Volt::route('post', 'posts.index')->name('post.index');
+    Volt::route('post/create', 'posts.form')->name('post.create');
+    Volt::route('post/{post}/edit', 'posts.form')->name('post.edit');
+    Volt::route('post/{post}', 'posts.show')->name('post.show');
 
     // 評論相關路由
     Route::post('/posts/{post}/comments', [CommentController::class, 'store'])->name('comments.store');
