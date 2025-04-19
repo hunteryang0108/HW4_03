@@ -9,30 +9,22 @@ class Comment extends Model
 {
     use HasFactory;
 
-    /**
-     * The attributes that are mass assignable.
-     *
-     * @var array
-     */
     protected $fillable = [
         'user_id',
         'post_id',
         'content',
+        'deleted'
     ];
-
-    /**
-     * Get the user that owns the comment.
-     */
-    public function user()
-    {
-        return $this->belongsTo(User::class);
-    }
-
-    /**
-     * Get the post that owns the comment.
-     */
+    
+    // 與文章的關聯
     public function post()
     {
         return $this->belongsTo(Post::class);
+    }
+    
+    // 與使用者的關聯
+    public function user()
+    {
+        return $this->belongsTo(User::class);
     }
 }
