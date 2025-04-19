@@ -9,86 +9,53 @@ use Illuminate\Support\Facades\Auth;
 
 class CommentController extends Controller
 {
-    /**
-     * Store a newly created comment in storage.
-     *
-     * @param  \Illuminate\Http\Request  $request
-     * @param  \App\Models\Post  $post
-     * @return \Illuminate\Http\Response
-     */
+    // 儲存評論
     public function store(Request $request, Post $post)
     {
-        $request->validate([
-            'content' => 'required|string|max:1000',
+        $validated = $request->validate([
+            'content' => 'required|string'
         ]);
-
+        
         $comment = new Comment([
-            'content' => $request->input('content'),
+            'content' => $validated['content'],
             'user_id' => Auth::id(),
+            'post_id' => $post->id
         ]);
-
-        $post->comments()->save($comment);
-
-        return redirect()->back()->with('success', '留言已成功發布！');
+        
+        $comment->save();
+        
+        return redirect()->route('posts.show', $post)
+            ->with('success', '評論發佈成功！');
     }
-
-    /**
-     * Show the form for editing the specified comment.
-     *
-     * @param  \App\Models\Comment  $comment
-     * @return \Illuminate\Http\Response
-     */
-    public function edit(Comment $comment)
-    {
-        // 確保用戶只能編輯自己的留言
-        if (Auth::id() !== $comment->user_id) {
-            abort(403, '無權編輯此留言');
-        }
-
-        return view('comments.edit', compact('comment'));
-    }
-
-    /**
-     * Update the specified comment in storage.
-     *
-     * @param  \Illuminate\Http\Request  $request
-     * @param  \App\Models\Comment  $comment
-     * @return \Illuminate\Http\Response
-     */
+    
+    // 更新評論
     public function update(Request $request, Comment $comment)
     {
-        // 確保用戶只能更新自己的留言
-        if (Auth::id() !== $comment->user_id) {
-            abort(403, '無權更新此留言');
-        }
-
-        $request->validate([
-            'content' => 'required|string|max:1000',
+        $this->authorize('update', $comment);
+        
+        $validated = $request->validate([
+            'content' => 'required|string'
         ]);
-
-        $comment->update([
-            'content' => $request->input('content'),
-        ]);
-
-        return redirect()->route('posts.show', $comment->post_id)->with('success', '留言已成功更新！');
+        
+        $comment->content = $validated['content'];
+        $comment->save();
+        
+        return redirect()->route('posts.show', $comment->post_id)
+            ->with('success', '評論更新成功！');
     }
-
-    /**
-     * Remove the specified comment from storage.
-     *
-     * @param  \App\Models\Comment  $comment
-     * @return \Illuminate\Http\Response
-     */
+    
+    // 刪除評論
     public function destroy(Comment $comment)
     {
-        // 確保用戶只能刪除自己的留言
-        if (Auth::id() !== $comment->user_id) {
-            abort(403, '無權刪除此留言');
-        }
-
-        $post_id = $comment->post_id;
-        $comment->delete();
-
-        return redirect()->route('posts.show', $post_id)->with('success', '留言已成功刪除！');
+        $this->authorize('delete', $comment);
+        
+        $postId = $comment->post_id;
+        
+        // 軟刪除
+        $comment->deleted = true;
+        $comment->save();
+        
+        return redirect()->route('posts.show', $postId)
+            ->with('success', '評論已成功刪除');
     }
 }
