@@ -67,9 +67,22 @@ class PostController extends Controller
         
         $post->save();
         
+        // 在 app/Http/Controllers/PostController.php 的 store 或 update 方法中
         // 處理標籤
         if (isset($validated['tags'])) {
-            $tagNames = explode(',', $validated['tags']);
+            // 處理可能的 JSON 格式
+            if (is_string($validated['tags'])) {
+                if (str_starts_with($validated['tags'], '[')) {
+                    // 可能是 JSON 數組
+                    $tagNames = json_decode($validated['tags'], true) ?: explode(',', $validated['tags']);
+                } else {
+                    // 普通的逗號分隔文本
+                    $tagNames = explode(',', $validated['tags']);
+                }
+            } else {
+                $tagNames = $validated['tags'];
+            }
+            
             $post->syncTagNames($tagNames);
         }
         
@@ -140,10 +153,10 @@ class PostController extends Controller
             ->with('success', '文章更新成功！');
     }
     
-    // 刪除文章
-    public function destroy(Post $post)
-    {
+    public function destroy(Post $post){
         $this->authorize('delete', $post);
+        
+        $postId = $post->id;
         
         // 軟刪除
         $post->deleted = true;

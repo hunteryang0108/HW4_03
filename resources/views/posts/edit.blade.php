@@ -30,7 +30,7 @@
                     <label for="tags" class="block font-medium text-sm mb-2">標籤 (用逗號分隔)</label>
                     <input type="text" name="tags" id="tags" value="{{ old('tags', $postTags) }}"
                            class="w-full px-3 py-2 border border-zinc-300 dark:border-zinc-600 rounded-md focus:outline-none focus:ring focus:ring-accent focus:ring-opacity-50 bg-white dark:bg-zinc-800">
-                    <p class="text-zinc-500 dark:text-zinc-400 text-sm mt-1">例如：問題, 討論, 分享</p>
+                    <p class="text-zinc-500 dark:text-zinc-400 text-sm mt-1">例如：Laravel, PHP, 教學</p>
                     @error('tags')
                         <p class="text-red-500 text-sm mt-1">{{ $message }}</p>
                     @enderror
@@ -76,14 +76,4 @@
             </form>
         </div>
     </div>
-    
-    <script>
-        // 標籤自動完成功能
-        document.addEventListener('DOMContentLoaded', function() {
-            const tagsInput = document.getElementById('tags');
-            
-            // 這裡可以添加標籤自動完成的功能
-            // 可以使用 Tagify 或其他 JS 庫來實現
-        });
-    </script>
 </x-layouts.app>

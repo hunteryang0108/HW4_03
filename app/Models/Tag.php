@@ -12,9 +12,17 @@ class Tag extends Model
 
     protected $fillable = ['name', 'slug', 'color'];
     
-    // 當設定 name 時，自動產生 slug
+    // 在 app/Models/Tag.php 中確保有此方法
     public function setNameAttribute($value)
     {
+        // 處理可能的對象格式
+        if (is_string($value) && (str_starts_with($value, '{') || str_starts_with($value, '['))) {
+            $decoded = json_decode($value, true);
+            if (json_last_error() === JSON_ERROR_NONE && isset($decoded['value'])) {
+                $value = $decoded['value'];
+            }
+        }
+        
         $this->attributes['name'] = $value;
         $this->attributes['slug'] = Str::slug($value);
     }

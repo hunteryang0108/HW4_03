@@ -16,7 +16,7 @@
                    class="inline-block px-4 py-2 rounded-full mr-2 mb-2 
                    {{ $currentTag == $tag->slug ? 'bg-accent text-accent-foreground' : 'bg-zinc-200 dark:bg-zinc-700' }}
                    {{ $tag->color ? 'border-2 border-'.$tag->color : '' }}">
-                    {{ $tag->name }} ({{ $tag->posts_count }})
+                    {{ $tag->name }}
                 </a>
                 @endforeach
             </div>
