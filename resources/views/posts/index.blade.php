@@ -6,22 +6,34 @@
             <!-- 標籤過濾區域 -->
             <div class="mb-6 overflow-x-auto whitespace-nowrap py-2">
                 <a href="{{ route('posts.index') }}" 
-                   class="inline-block px-4 py-2 rounded-full mr-2 mb-2 
-                   {{ !$currentTag ? 'bg-accent text-accent-foreground' : 'bg-zinc-200 dark:bg-zinc-700' }}">
+                class="inline-block px-4 py-2 rounded-full mr-2 mb-2 
+                {{ !$currentTag ? 'bg-accent text-accent-foreground' : 'bg-zinc-200 dark:bg-zinc-700' }}">
                     全部文章
                 </a>
                 
                 @foreach($tags as $tag)
                 <a href="{{ route('posts.index', ['tag' => $tag->slug]) }}" 
-                   class="inline-block px-4 py-2 rounded-full mr-2 mb-2 
-                   {{ $currentTag == $tag->slug ? 'bg-accent text-accent-foreground' : 'bg-zinc-200 dark:bg-zinc-700' }}
-                   {{ $tag->color ? 'border-2 border-'.$tag->color : '' }}">
+                class="inline-block px-4 py-2 rounded-full mr-2 mb-2 
+                {{ $currentTag == $tag->slug 
+                    ? ($tag->color ? 'bg-'.$tag->color.' text-white' : 'bg-accent text-accent-foreground') 
+                    : 'bg-zinc-200 dark:bg-zinc-700' }}">
                     {{ $tag->name }}
                 </a>
                 @endforeach
             </div>
             
-            <div class="flex justify-end mb-4">
+            <div class="flex justify-between mb-6">
+                <div class="flex space-x-2">
+                    <a href="{{ route('posts.index', array_merge(request()->except('sort'), ['sort' => 'latest'])) }}" 
+                       class="px-3 py-1.5 rounded-md text-sm {{ request('sort', 'latest') == 'latest' ? 'bg-accent text-accent-foreground' : 'bg-zinc-100 dark:bg-zinc-700' }}">
+                        最新
+                    </a>
+                    <a href="{{ route('posts.index', array_merge(request()->except('sort'), ['sort' => 'commented'])) }}" 
+                       class="px-3 py-1.5 rounded-md text-sm {{ request('sort') == 'commented' ? 'bg-accent text-accent-foreground' : 'bg-zinc-100 dark:bg-zinc-700' }}">
+                        熱門討論
+                    </a>
+                </div>
+                
                 <a href="{{ route('posts.create') }}" 
                    class="px-4 py-2 bg-accent text-accent-foreground rounded-md">
                     發佈新文章
@@ -45,6 +57,7 @@
                     </div>
                     
                     <div class="flex items-center mb-4">
+                        <img src="{{ $post->user->avatarUrl(32) }}" class="h-8 w-8 rounded-full mr-2" alt="{{ $post->user->name }}">
                         <div class="flex items-center text-sm text-zinc-500 dark:text-zinc-400">
                             <span>由 {{ $post->user->name }} 發佈</span>
                         </div>
@@ -55,12 +68,14 @@
                     <div class="mb-4 flex flex-wrap">
                         @foreach($post->tags as $tag)
                         <a href="{{ route('posts.index', ['tag' => $tag->slug]) }}" 
-                           class="bg-zinc-100 dark:bg-zinc-700 text-sm px-3 py-1 rounded-full mr-2 mb-2">
+                            class="inline-flex items-center px-2 py-1 rounded-full text-xs font-medium mr-2 mb-2
+                            {{ $tag->color ? 'bg-'.$tag->color.' text-white' : 'bg-zinc-100 dark:bg-zinc-700' }}">
                             {{ $tag->name }}
                         </a>
                         @endforeach
                     </div>
                     @endif
+
                     
                     <div class="prose dark:prose-invert mb-4 line-clamp-3">
                         {{ Str::limit(strip_tags($post->content), 200) }}

@@ -39,11 +39,10 @@
             </div>
             
             <div class="flex items-center mb-4">
-                <div class="mr-4">
+                <img src="{{ $post->user->avatarUrl() }}" class="h-10 w-10 rounded-full mr-3" alt="{{ $post->user->name }}">
+                <div>
                     <span class="font-semibold">{{ $post->user->name }}</span>
-                </div>
-                <div class="text-zinc-500 dark:text-zinc-400 text-sm">
-                    {{ $post->created_at->format('Y-m-d H:i') }}
+                    <div class="text-zinc-500 dark:text-zinc-400 text-sm">{{ $post->created_at->format('Y-m-d H:i') }}</div>
                 </div>
             </div>
             
@@ -52,7 +51,8 @@
             <div class="mb-6 flex flex-wrap">
                 @foreach($post->tags as $tag)
                 <a href="{{ route('posts.index', ['tag' => $tag->slug]) }}" 
-                   class="bg-zinc-100 dark:bg-zinc-700 text-sm px-3 py-1 rounded-full mr-2 mb-2">
+                   class="inline-flex items-center px-3 py-1 rounded-full text-xs font-medium mr-2 mb-2
+                   {{ $tag->color ? 'bg-'.$tag->color.' text-white' : 'bg-zinc-100 dark:bg-zinc-700' }}">
                     {{ $tag->name }}
                 </a>
                 @endforeach
@@ -71,6 +71,30 @@
             <!-- 內容 -->
             <div class="prose dark:prose-invert max-w-none mb-8">
                 {!! nl2br(e($post->content)) !!}
+            </div>
+            
+            <!-- 分享按鈕 -->
+            <div class="mt-8 pt-4 border-t border-zinc-200 dark:border-zinc-700">
+                <div class="flex items-center">
+                    <span class="mr-4 text-zinc-600 dark:text-zinc-400">分享這篇文章：</span>
+                    <div class="flex space-x-2">
+                        <a href="https://www.facebook.com/sharer/sharer.php?u={{ urlencode(request()->url()) }}" target="_blank" class="p-2 bg-blue-600 text-white rounded-full hover:bg-blue-700">
+                            <svg xmlns="http://www.w3.org/2000/svg" class="h-4 w-4" fill="currentColor" viewBox="0 0 24 24">
+                                <path d="M18.77 7.46H14.5v-1.9c0-.9.6-1.1 1-1.1h3V.5h-4.33C10.24.5 9.5 3.44 9.5 5.32v2.15h-3v4h3v12h5v-12h3.85l.42-4z"/>
+                            </svg>
+                        </a>
+                        <a href="https://twitter.com/intent/tweet?url={{ urlencode(request()->url()) }}&text={{ urlencode($post->title) }}" target="_blank" class="p-2 bg-blue-400 text-white rounded-full hover:bg-blue-500">
+                            <svg xmlns="http://www.w3.org/2000/svg" class="h-4 w-4" fill="currentColor" viewBox="0 0 24 24">
+                                <path d="M24 4.557c-.883.392-1.832.656-2.828.775 1.017-.609 1.798-1.574 2.165-2.724-.951.564-2.005.974-3.127 1.195-.897-.957-2.178-1.555-3.594-1.555-3.179 0-5.515 2.966-4.797 6.045-4.091-.205-7.719-2.165-10.148-5.144-1.29 2.213-.669 5.108 1.523 6.574-.806-.026-1.566-.247-2.229-.616-.054 2.281 1.581 4.415 3.949 4.89-.693.188-1.452.232-2.224.084.626 1.956 2.444 3.379 4.6 3.419-2.07 1.623-4.678 2.348-7.29 2.04 2.179 1.397 4.768 2.212 7.548 2.212 9.142 0 14.307-7.721 13.995-14.646.962-.695 1.797-1.562 2.457-2.549z"/>
+                            </svg>
+                        </a>
+                        <a href="mailto:?subject={{ urlencode($post->title) }}&body={{ urlencode('查看這篇文章：' . request()->url()) }}" class="p-2 bg-red-500 text-white rounded-full hover:bg-red-600">
+                            <svg xmlns="http://www.w3.org/2000/svg" class="h-4 w-4" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+                                <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M3 8l7.89 5.26a2 2 0 002.22 0L21 8M5 19h14a2 2 0 002-2V7a2 2 0 00-2-2H5a2 2 0 00-2 2v10a2 2 0 002 2z" />
+                            </svg>
+                        </a>
+                    </div>
+                </div>
             </div>
         </div>
         
@@ -108,9 +132,12 @@
                 <div class="border-t border-zinc-200 dark:border-zinc-700 pt-4" id="comment-{{ $comment->id }}">
                     <div class="flex justify-between items-start">
                         <div class="flex items-center mb-2">
-                            <div class="font-semibold mr-2">{{ $comment->user->name }}</div>
-                            <div class="text-zinc-500 dark:text-zinc-400 text-sm">
-                                {{ $comment->created_at->format('Y-m-d H:i') }}
+                            <img src="{{ $comment->user->avatarUrl(32) }}" alt="{{ $comment->user->name }}" class="h-8 w-8 rounded-full mr-2">
+                            <div>
+                                <div class="font-semibold">{{ $comment->user->name }}</div>
+                                <div class="text-zinc-500 dark:text-zinc-400 text-xs">
+                                    {{ $comment->created_at->format('Y-m-d H:i') }}
+                                </div>
                             </div>
                         </div>
                         
@@ -134,7 +161,7 @@
                         @endif
                     </div>
                     
-                    <div id="comment-content-{{ $comment->id }}" class="prose dark:prose-invert max-w-none">
+                    <div id="comment-content-{{ $comment->id }}" class="prose dark:prose-invert max-w-none ml-10">
                         {!! nl2br(e($comment->content)) !!}
                     </div>
                     
@@ -170,6 +197,13 @@
         </div>
     </div>
     
+    <!-- 回到頂部按鈕 -->
+    <button id="backToTop" class="fixed bottom-8 right-8 p-3 bg-accent text-accent-foreground rounded-full shadow-lg hidden">
+        <svg xmlns="http://www.w3.org/2000/svg" class="h-5 w-5" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M5 15l7-7 7 7" />
+        </svg>
+    </button>
+    
     <script>
         function toggleEditForm(commentId) {
             const contentElement = document.getElementById(`comment-content-${commentId}`);
@@ -183,5 +217,23 @@
                 editElement.classList.remove('hidden');
             }
         }
+        
+        // 回到頂部功能
+        const backToTopButton = document.getElementById('backToTop');
+        
+        window.addEventListener('scroll', () => {
+            if (window.pageYOffset > 300) {
+                backToTopButton.classList.remove('hidden');
+            } else {
+                backToTopButton.classList.add('hidden');
+            }
+        });
+        
+        backToTopButton.addEventListener('click', () => {
+            window.scrollTo({
+                top: 0,
+                behavior: 'smooth'
+            });
+        });
     </script>
 </x-layouts.app>
