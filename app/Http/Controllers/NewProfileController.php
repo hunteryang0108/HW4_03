@@ -13,12 +13,15 @@ class NewProfileController extends Controller
      * 顯示使用者的個人檔案。
      */
     public function show(User $user)
-    {
-        // 獲取當前用戶的所有留言
-        $comments = $user->comments()->latest()->get(); // 這裡按照留言時間排序，最新的留言排前面
-
-        return view('profile.show', compact('user', 'comments'));
-    }
+{
+    // 獲取未刪除的貼文
+    $posts = $user->posts()->where('deleted', false)->orderBy('created_at', 'desc')->get();
+    
+    // 獲取未刪除的留言
+    $comments = $user->comments()->where('deleted', false)->orderBy('created_at', 'desc')->get();
+    
+    return view('profile.show', compact('user', 'posts', 'comments'));
+}
 
     /**
      * 顯示編輯個人檔案的表單。

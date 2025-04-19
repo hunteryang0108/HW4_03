@@ -8,7 +8,7 @@
         <flux:card class="relative">
             <!-- 編輯按鈕 -->
             <a href="{{ route('profile.edit', $user) }}" class="absolute top-6 right-6">
-                <flux:button variant="ghost" icon="pencil-square">編輯</flux:button>
+                <flux:button variant="ghost"><flux:icon.pencil-square /> 編輯</flux:button>
             </a>
 
             <!-- 使用者資訊 -->
@@ -24,7 +24,7 @@
                         <p class="text-zinc-700 dark:text-zinc-300">
                             <span class="inline-flex items-center">
                                 <flux:icon name="cake" class="w-5 h-5 mr-2" />
-                                生日：{{ $user->profile?->birth ?? '未設置' }}
+                                生日：{{ $user->profile?->birth ?$user->profile->birth->format('Y-m-d') :  '未設置' }}
                             </span>
                         </p>
                         <p class="text-zinc-700 dark:text-zinc-300">
@@ -50,13 +50,24 @@
             <div class="text-center py-4">
                 <flux:heading size="lg" class="mb-6">歷史貼文</flux:heading>
 
-                @if ($user->posts->isEmpty())
+                @if ($posts->isEmpty())
                 <p class="text-zinc-500 dark:text-zinc-400">你還沒有發佈任何貼文。</p>
                 @else
                 <div class="space-y-4 max-w-3xl mx-auto">
-                    @foreach ($user->posts as $post)
-                    <div class="bg-zinc-50 dark:bg-zinc-800 p-4 rounded-lg">
-                        <h3 class="text-zinc-700 dark:text-zinc-300 font-semibold">{{ $post->title }}</h3>
+                    @foreach ($posts as $post)
+                    <div class="bg-zinc-50 dark:bg-zinc-800 p-4 rounded-lg relative">
+                        <div style="position: absolute; top: 8px; right: 8px; left: auto;">
+                            <flux:button
+                                href="{{ route('posts.show', $post) }}"
+                                variant="outline"
+                                size="sm">
+                                查看更多
+                            </flux:button>
+                        </div>
+
+                        <h3 class="text-zinc-700 dark:text-zinc-300 font-semibold">
+                            {{ $post->title }}
+                        </h3>
                         <p class="text-zinc-600 dark:text-zinc-400 text-sm mt-2">{{ Str::limit($post->content, 100) }}</p>
                         <p class="text-zinc-500 dark:text-zinc-400 text-xs mt-2">發佈時間：{{ $post->created_at->format('Y-m-d H:i') }}</p>
                     </div>
@@ -75,9 +86,33 @@
                 @else
                 <div class="space-y-4 max-w-3xl mx-auto">
                     @foreach ($comments as $comment)
-                    <div class="bg-zinc-50 dark:bg-zinc-800 p-4 rounded-lg">
-                        <p class="text-zinc-700 dark:text-zinc-300">{{ $comment->content }}</p>
-                        <p class="text-zinc-500 dark:text-zinc-400 text-sm mt-2">留言時間：{{ $comment->created_at->format('Y-m-d H:i') }}</p>
+                    <div class="bg-zinc-50 dark:bg-zinc-800 p-4 rounded-lg relative">
+                        <div style="position: absolute; top: 8px; right: 8px; left: auto;">
+                            @if ($comment->post && !$comment->post->deleted)
+                            <flux:button
+                                href="{{ route('posts.show', $comment->post) }}"
+                                variant="outline"
+                                size="sm">
+                                查看更多
+                            </flux:button>
+                            @else
+                            <flux:button
+                                variant="outline"
+                                size="sm"
+                                x-data="{}"
+                                @click="alert('該文章已刪除！')">
+                                查看更多
+                            </flux:button>
+                            @endif
+                        </div>
+
+                        <div class="pl-24">
+                            <p class="text-zinc-700 dark:text-zinc-300">{{ $comment->content }}</p>
+                            <p class="text-zinc-500 dark:text-zinc-400 text-sm mt-2">留言時間：{{ $comment->created_at->format('Y-m-d H:i') }}</p>
+                            @if ($comment->post && $comment->post->deleted)
+                            <p class="text-red-500 text-xs mt-1">(原文章已刪除)</p>
+                            @endif
+                        </div>
                     </div>
                     @endforeach
                 </div>
