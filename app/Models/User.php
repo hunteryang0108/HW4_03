@@ -71,4 +71,14 @@ class User extends Authenticatable
     {
         return $this->hasMany(Comment::class);
     }
+
+    /**
+     * 產生使用者頭像URL (基於名字的初始字母)
+     */
+    public function avatarUrl($size = 40): string
+    {
+        $name = urlencode($this->name);
+        $bgColor = substr(md5($this->email), 0, 6);
+        return "https://ui-avatars.com/api/?name={$name}&size={$size}&background={$bgColor}&color=ffffff";
+    }
 }
