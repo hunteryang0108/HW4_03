@@ -77,6 +77,7 @@
             </div>
         </flux:card>
         <!-- 歷史留言區 -->
+        <!-- 歷史留言區 -->
         <flux:card>
             <div class="text-center py-4">
                 <flux:heading size="lg" class="mb-6">歷史留言</flux:heading>
@@ -86,34 +87,23 @@
                 @else
                 <div class="space-y-4 max-w-3xl mx-auto">
                     @foreach ($comments as $comment)
+                    @if ($comment->post && !$comment->post->deleted)
                     <div class="bg-zinc-50 dark:bg-zinc-800 p-4 rounded-lg relative">
                         <div style="position: absolute; top: 8px; right: 8px; left: auto;">
-                            @if ($comment->post && !$comment->post->deleted)
                             <flux:button
                                 href="{{ route('posts.show', $comment->post) }}"
                                 variant="outline"
                                 size="sm">
                                 查看更多
                             </flux:button>
-                            @else
-                            <flux:button
-                                variant="outline"
-                                size="sm"
-                                x-data="{}"
-                                @click="alert('該文章已刪除！')">
-                                查看更多
-                            </flux:button>
-                            @endif
                         </div>
 
                         <div class="pl-24">
                             <p class="text-zinc-700 dark:text-zinc-300">{{ $comment->content }}</p>
                             <p class="text-zinc-500 dark:text-zinc-400 text-sm mt-2">留言時間：{{ $comment->created_at->format('Y-m-d H:i') }}</p>
-                            @if ($comment->post && $comment->post->deleted)
-                            <p class="text-red-500 text-xs mt-1">(原文章已刪除)</p>
-                            @endif
                         </div>
                     </div>
+                    @endif
                     @endforeach
                 </div>
                 @endif
