@@ -1,4 +1,4 @@
-.PHONY: build env clean up down reup start stop restart composer npm laravel nginx dev prod
+.PHONY: build env clean up down reup start stop restart composer npm laravel nginx dev prod seed
 
 DOCKER_COMPOSE := $(if $(shell command -v docker-compose), docker-compose, docker compose)
 HOSTNAME := $(shell hostname -I | awk '{split($$1, ip, "."); printf "sd%02d.yeahlowflicker.directory", (ip[4] - 228) / 2}')
@@ -58,3 +58,7 @@ prod:
 	@$(DOCKER_COMPOSE) down vite
 	@docker system prune --all -f
 	@sed -i '/vite:/,/network:/ {/deploy:/s/^\(\s*\)#/\1/; /replicas:/s/^\(\s*\)#/\1/}' docker-compose.yml
+
+seed:
+	@$(DOCKER_COMPOSE) run --rm laravel sh -c "php artisan db:seed --force"
+	@$(DOCKER_COMPOSE) run --rm vite bash -c "php artisan db:seed"
