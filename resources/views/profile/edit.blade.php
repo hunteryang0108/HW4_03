@@ -17,10 +17,12 @@
                         <img id="preview" src="{{ $user->avatarUrl() }}"
                             class="w-10 h-10 rounded-full object-cover border-2 border-zinc-200 dark:border-zinc-700">
 
-                        <label class="cursor-pointer bg-zinc-200 dark:bg-zinc-700 px-4 py-2 rounded-lg">
-                            選擇檔案
-                            <input type="file" name="avatar" class="hidden" id="avatarInput">
-                        </label>
+                        <div class="flex gap-2">
+                            <label class="cursor-pointer bg-zinc-200 dark:bg-zinc-700 px-4 py-2 rounded-lg">
+                                選擇檔案
+                                <input type="file" name="avatar" class="hidden" id="avatarInput">
+                            </label>
+                        </div>
                     </div>
                 </div>
 
