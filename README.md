@@ -70,8 +70,11 @@ reup | 重新建立並啟動所有容器
 start | 啟動所有容器
 stop | 停止所有容器
 restart | 重新啟動所有容器
-dev | 進入開發容器（ `dev` 伺服器）
 clean | 清理所有容器與映像檔
+dev | 進入開發容器（ `dev` 伺服器）
+prod | 部屬至生產環境（停用 `dev` 伺服器）
+env | 初始化伺服器環境
+seed | 進行資料庫資料填充
 
 ### Network Configuration
 
@@ -90,11 +93,15 @@ Bind Address | Network | Service
 
  - #### `PORT 80` 是 `prod` 伺服器
 
+   - 環境變數 `.env.local`
+   - 資料庫 `/database/local.sqlite`
    - 可以從外網連線存取
    - 靜態資源需要經過 `Vite` 打包（`npm run build`）
 
  - #### `PORT 8000` 是 `dev` 伺服器
 
+   - 環境變數 `.env.production`
+   - 資料庫 `/database/production.sqlite`
    - 必須從本機連線存取
    - 支援模組熱替換（`HMR`）頁面即時更新
    - `HTML` 需要包含 `@vite()` 才會進行 `HMR`
@@ -122,14 +129,6 @@ Bind Address | Network | Service
 
 ```bash
 git pull
-php artisan migrate --seed
-```
-
-### Disable Dev Server
-
-在 `docker-compose.yml` 中將 `vite` 容器 `deploy: replicas: 0` 取消註解
-
-```bash
-docker compose down vite
-docker-compose down vite  # 舊版指令
+make dev
+php artisan migrate
 ```
