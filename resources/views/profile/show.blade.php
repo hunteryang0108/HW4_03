@@ -98,7 +98,7 @@
                             </flux:button>
                         </div>
 
-                        <div class="pl-24">
+                        <div class="text-center">
                             <p class="text-zinc-700 dark:text-zinc-300">{{ $comment->content }}</p>
                             <p class="text-zinc-500 dark:text-zinc-400 text-sm mt-2">留言時間：{{ $comment->created_at->format('Y-m-d H:i') }}</p>
                         </div>
