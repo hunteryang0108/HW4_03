@@ -53,7 +53,7 @@ class PostController extends Controller
         $tags = Tag::orderBy('name')->get();
         return view('posts.create', compact('tags'));
     }
-    
+        
     // 儲存新文章
     public function store(Request $request)
     {
@@ -72,13 +72,11 @@ class PostController extends Controller
         
         // 處理圖片上傳
         if ($request->hasFile('image')) {
-            $path = $request->file('image')->store('post-images', 'public');
-            $post->image = $path;
+            $post->image = file_get_contents($request->file('image')->getRealPath());
         }
         
         $post->save();
         
-        // 在 app/Http/Controllers/PostController.php 的 store 或 update 方法中
         // 處理標籤
         if (isset($validated['tags'])) {
             // 處理可能的 JSON 格式
@@ -118,10 +116,10 @@ class PostController extends Controller
     {
         $this->authorize('update', $post);
         
-        $tags = Tag::orderBy('name')->get();
+        $allTags = Tag::orderBy('name')->get();
         $postTags = $post->tags->pluck('name')->implode(',');
         
-        return view('posts.edit', compact('post', 'tags', 'postTags'));
+        return view('posts.edit', compact('post', 'allTags', 'postTags'));
     }
     
     // 更新文章
@@ -141,13 +139,8 @@ class PostController extends Controller
         
         // 處理圖片更新
         if ($request->hasFile('image')) {
-            // 刪除舊圖片
-            if ($post->image) {
-                Storage::disk('public')->delete($post->image);
-            }
-            
-            $path = $request->file('image')->store('post-images', 'public');
-            $post->image = $path;
+            // 直接更新二進制數據
+            $post->image = file_get_contents($request->file('image')->getRealPath());
         }
         
         $post->save();

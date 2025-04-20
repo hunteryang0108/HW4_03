@@ -25,14 +25,10 @@
                     @enderror
                 </div>
                 
+                
                 <div class="mb-4">
-                    <label for="tags" class="block font-medium text-sm mb-2">標籤 (用逗號分隔)</label>
-                    <input type="text" name="tags" id="tags" value="{{ old('tags') }}"
-                           class="w-full px-3 py-2 border border-zinc-300 dark:border-zinc-600 rounded-md focus:outline-none focus:ring focus:ring-accent focus:ring-opacity-50 bg-white dark:bg-zinc-800">
-                    <p class="text-zinc-500 dark:text-zinc-400 text-sm mt-1">例如：問題, 討論, 分享</p>
-                    @error('tags')
-                        <p class="text-red-500 text-sm mt-1">{{ $message }}</p>
-                    @enderror
+                    <label for="tags" class="block font-medium text-sm mb-2">標籤 (可多選)</label>
+                    <input id="tags" name="tags" value="{{ $postTags ?? '' }}" class="w-full px-3 py-2 border border-zinc-300 dark:border-zinc-600 rounded-md">
                 </div>
                 
                 <div class="mb-4">

@@ -4,6 +4,7 @@ namespace App\Models;
 
 use Illuminate\Database\Eloquent\Factories\HasFactory;
 use Illuminate\Database\Eloquent\Model;
+use Illuminate\Support\Str;
 
 class Post extends Model
 {
@@ -46,40 +47,19 @@ class Post extends Model
         return $this->likes()->where('user_id', $user->id)->exists();
     }
     
-   // 在 app/Models/Post.php 文件中
+   
+    // 在 app/Models/Post.php 中的 syncTagNames 方法
+
     public function syncTagNames(array $tagNames)
     {
-        $processedTagNames = [];
-        
-        foreach ($tagNames as $tagName) {
-            // 處理可能的不同格式
-            if (is_array($tagName) && isset($tagName['value'])) {
-                // 如果是數組直接取 value
-                $processedTagNames[] = $tagName['value'];
-            } elseif (is_string($tagName)) {
-                // 如果是字符串判斷是否為 JSON
-                if (str_starts_with(trim($tagName), '{')) {
-                    $decoded = json_decode($tagName, true);
-                    if (json_last_error() === JSON_ERROR_NONE && isset($decoded['value'])) {
-                        $processedTagNames[] = $decoded['value'];
-                    } else {
-                        $processedTagNames[] = trim($tagName);
-                    }
-                } else {
-                    $processedTagNames[] = trim($tagName);
-                }
-            }
-        }
-        
         // 過濾空值
-        $processedTagNames = array_filter($processedTagNames, fn($name) => !empty($name));
+        $tagNames = array_filter($tagNames, fn($name) => !empty($name));
         
-        // 創建標籤並同步
-        $tags = collect($processedTagNames)->map(fn($name) => 
-            Tag::firstOrCreate(['name' => $name])
-        );
+        // 只取現有標籤
+        $existingTags = Tag::whereIn('name', $tagNames)->get();
         
-        $this->tags()->sync($tags->pluck('id'));
+        // 同步標籤
+        $this->tags()->sync($existingTags->pluck('id'));
         
         // 更新標籤計數
         Tag::withCount('posts')->get()->each(function ($tag) {
