@@ -46,6 +46,31 @@ class Post extends Model
     {
         return $this->likes()->where('user_id', $user->id)->exists();
     }
+
+
+    /**
+     * Get the favorites for the post.
+     */
+    public function favorites()
+    {
+        return $this->hasMany(Favorite::class);
+    }
+    
+    /**
+     * Get the users who favorited this post.
+     */
+    public function favoritedBy()
+    {
+        return $this->belongsToMany(User::class, 'favorites', 'post_id', 'user_id')->withTimestamps();
+    }
+    
+    /**
+     * Check if the post is favorited by a user.
+     */
+    public function isFavoritedBy(User $user)
+    {
+        return $this->favorites()->where('user_id', $user->id)->exists();
+    }
     
    
     // 在 app/Models/Post.php 中的 syncTagNames 方法
