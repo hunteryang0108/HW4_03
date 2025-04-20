@@ -61,6 +61,130 @@ select:focus[data-flux-control] {
     @apply outline-hidden ring-2 ring-accent ring-offset-2 ring-offset-accent-foreground;
 }
 
+/* 自定義滾動條 */
+.scrollbar-thin::-webkit-scrollbar {
+    width: 4px;
+    height: 4px;
+}
+
+.scrollbar-thumb-zinc-200::-webkit-scrollbar-thumb {
+    background-color: var(--color-zinc-200);
+    border-radius: 9999px;
+}
+
+.dark .scrollbar-thumb-zinc-700::-webkit-scrollbar-thumb {
+    background-color: var(--color-zinc-700);
+}
+
+/* 卡片懸停效果 */
+.card-hover {
+    transition: all 0.2s ease-in-out;
+}
+
+.card-hover:hover {
+    transform: translateY(-2px);
+    box-shadow: 0 10px 15px -3px rgba(0, 0, 0, 0.1), 0 4px 6px -2px rgba(0, 0, 0, 0.05);
+}
+
+/* 按鈕優化 */
+button, 
+[type='button'], 
+[type='reset'], 
+[type='submit'] {
+    transition: all 0.2s ease-in-out;
+}
+
+/* Tagify 樣式優化 */
+.tagify {
+    border: none !important;
+    background: transparent !important;
+}
+
+.tagify__tag {
+    background-color: var(--color-accent) !important;
+    color: var(--color-accent-foreground) !important;
+}
+
+.dark .tagify__tag {
+    background-color: var(--color-accent) !important;
+    color: var(--color-accent-foreground) !important;
+}
+
+/* 改進留言區 */
+.comment-item {
+    transition: background-color 0.2s ease;
+}
+
+.comment-item:hover {
+    background-color: var(--color-zinc-50);
+}
+
+.dark .comment-item:hover {
+    background-color: var(--color-zinc-700/50);
+}
+
+/* 添加到 app.css 文件底部 */
+
+/* 基礎過渡效果 */
+.transition-base {
+    transition: all 0.2s ease-in-out;
+}
+
+/* 懸停動畫效果 */
+.hover-lift {
+    transition: transform 0.2s ease, box-shadow 0.2s ease;
+}
+
+.hover-lift:hover {
+    transform: translateY(-2px);
+    box-shadow: 0 10px 15px -3px rgba(0, 0, 0, 0.1), 0 4px 6px -2px rgba(0, 0, 0, 0.05);
+}
+
+/* 按鈕點擊效果 */
+.active-press:active {
+    transform: scale(0.97);
+}
+
+/* 平滑淡入效果，用於內容載入 */
+@keyframes fadeIn {
+    from { opacity: 0; transform: translateY(10px); }
+    to { opacity: 1; transform: translateY(0); }
+}
+
+.fade-in {
+    animation: fadeIn 0.3s ease forwards;
+}
+
+/* 淡入淡出效果 */
+.fade-effect {
+    transition: opacity 0.3s ease;
+}
+
+.fade-effect:hover {
+    opacity: 0.85;
+}
+
+/* 脈動效果，可用於引導注意力 */
+@keyframes pulse {
+    0% { transform: scale(1); }
+    50% { transform: scale(1.05); }
+    100% { transform: scale(1); }
+}
+
+.pulse {
+    animation: pulse 2s infinite;
+}
+
+/* 卡片懸停效果 */
+.card-hover {
+    transition: all 0.2s ease-in-out;
+}
+
+.card-hover:hover {
+    transform: translateY(-3px);
+    box-shadow: 0 10px 15px -3px rgba(0, 0, 0, 0.1), 0 4px 6px -2px rgba(0, 0, 0, 0.05);
+}
+
 /* \[:where(&)\]:size-4 {
     @apply size-4;
 } */

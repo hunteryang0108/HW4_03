@@ -43,6 +43,19 @@ Route::middleware(['auth'])->group(function () {
 
     //like相關路由
     Route::post('/posts/{post}/like', [\App\Http\Controllers\LikeController::class, 'toggle'])->name('posts.like');
-});
+
+    // 標籤
+    Route::get('/api/tags', function () {
+        $tags = \App\Models\Tag::all()->map(function($tag) {
+            return [
+                'value' => $tag->id,
+                'text' => $tag->name,
+                'color' => $tag->color
+            ];
+        });
+        
+        return response()->json($tags);
+    })->name('api.tags');
+    });
 
 require __DIR__.'/auth.php';
