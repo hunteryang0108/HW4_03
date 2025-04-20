@@ -14,10 +14,20 @@ class PostController extends Controller
     public function index(Request $request)
     {
         $tag = $request->query('tag');
+        $sort = $request->query('sort', 'latest'); // 預設為最新
         
         $query = Post::where('deleted', false)
-                     ->with(['user', 'tags'])
-                     ->orderBy('created_at', 'desc');
+                     ->with(['user', 'tags']);
+        
+        // 依照排序選項
+        switch ($sort) {
+            case 'commented':
+                $query->withCount('comments')
+                      ->orderBy('comments_count', 'desc');
+                break;
+            default:
+                $query->orderBy('created_at', 'desc');
+        }
                      
         // 如果有標籤參數，則過濾文章
         if ($tag) {
@@ -32,7 +42,8 @@ class PostController extends Controller
         return view('posts.index', [
             'posts' => $posts,
             'tags' => $allTags,
-            'currentTag' => $tag
+            'currentTag' => $tag,
+            'currentSort' => $sort
         ]);
     }
     
