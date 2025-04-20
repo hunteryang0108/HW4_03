@@ -91,4 +91,9 @@ class User extends Authenticatable
         $bgColor = substr(md5($this->email), 0, 6);
         return "https://ui-avatars.com/api/?name={$name}&size={$size}&background={$bgColor}&color=ffffff";
     }
+
+    public function likes()
+    {
+        return $this->hasMany(Like::class);
+    }
 }
