@@ -61,4 +61,3 @@ prod:
 
 seed:
 	@$(DOCKER_COMPOSE) run --rm laravel sh -c "php artisan db:seed --force"
-	@$(DOCKER_COMPOSE) run --rm vite bash -c "php artisan db:seed"

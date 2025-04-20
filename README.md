@@ -74,7 +74,7 @@ clean | 清理所有容器與映像檔
 dev | 進入開發容器（ `dev` 伺服器）
 prod | 部屬至生產環境（停用 `dev` 伺服器）
 env | 初始化伺服器環境
-seed | 進行資料庫資料填充
+seed | 進行資料填充（ `prod` 伺服器）
 
 ### Network Configuration
 
