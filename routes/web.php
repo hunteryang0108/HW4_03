@@ -40,6 +40,9 @@ Route::middleware(['auth'])->group(function () {
     // 標籤相關路由
     Route::get('/tags', [TagController::class, 'index'])->name('tags.index');
     Route::get('/tags/search', [TagController::class, 'search'])->name('tags.search');
+
+    //like相關路由
+    Route::post('/posts/{post}/like', [\App\Http\Controllers\LikeController::class, 'toggle'])->name('posts.like');
 });
 
 require __DIR__.'/auth.php';

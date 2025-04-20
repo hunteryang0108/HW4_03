@@ -34,6 +34,17 @@ class Post extends Model
     {
         return $this->hasMany(Comment::class);
     }
+
+    //與like的關聯
+    public function likes()
+    {
+        return $this->hasMany(Like::class);
+    }
+
+    public function likedBy(User $user)
+    {
+        return $this->likes()->where('user_id', $user->id)->exists();
+    }
     
    // 在 app/Models/Post.php 文件中
     public function syncTagNames(array $tagNames)
