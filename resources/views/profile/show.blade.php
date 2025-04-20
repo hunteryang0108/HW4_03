@@ -13,9 +13,7 @@
 
             <!-- 使用者資訊 -->
             <div class="flex flex-col items-center gap-6 py-8">
-                <!-- <img src="{{ $user->profile?->getAvatarUrl() }}" alt="User Avatar"
-                    class="w-36 h-36 rounded-full border-4 border-zinc-200 dark:border-zinc-700"> -->
-                <img src="{{ $user->profile?->getAvatarUrl() ?? 'data:image/svg+xml;base64,' . base64_encode(generateInitialsAvatar($user->name)) }}" class="w-32 h-32 rounded-full object-cover border-2 border-zinc-200 dark:border-zinc-700">
+                    <img src="{{ $user->avatarUrl() }}" class="w-32 h-32 rounded-full object-cover border-2 border-zinc-200 dark:border-zinc-700">
 
                 <div class="text-center space-y-4 ">
                     <flux:heading size="3xl" class="font-bold ">{{ $user->name }}</flux:heading>

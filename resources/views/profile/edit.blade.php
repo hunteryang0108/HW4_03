@@ -14,8 +14,9 @@
                 <div class="space-y-4">
                     <h2 class="text-lg font-semibold">目前頭像</h2>
                     <div class="flex flex-col sm:flex-row items-center gap-6">
-                        <img id="preview" src="{{ $user->profile?->getAvatarUrl() }}"
+                        <img id="preview" src="{{ $user->avatarUrl() }}"
                             class="w-10 h-10 rounded-full object-cover border-2 border-zinc-200 dark:border-zinc-700">
+
                         <label class="cursor-pointer bg-zinc-200 dark:bg-zinc-700 px-4 py-2 rounded-lg">
                             選擇檔案
                             <input type="file" name="avatar" class="hidden" id="avatarInput">
