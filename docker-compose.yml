@@ -3,10 +3,7 @@ services:
     container_name: composer
     image: composer
     working_dir: /var/www/laravel
-    command: bash -c "composer self-update && composer install
-      && composer run post-root-package-install
-      && composer run post-create-project-cmd
-      && chmod -R a+w ./bootstrap/cache ./storage ./database"
+    command: bash -c "composer self-update && composer install"
     volumes:
       - .:/var/www/laravel
     deploy:
@@ -20,6 +17,7 @@ services:
     working_dir: /var/www/laravel
     volumes:
       - .:/var/www/laravel
+      - ./.env.production:/.env
     expose:
       - "9000"
     restart: unless-stopped
@@ -49,6 +47,7 @@ services:
     command: bash -c "composer run dev"
     volumes:
       - .:/var/www/laravel
+      - ./.env.local:/.env
       - ./server.hmr:/server.hmr
     ports:
       - "127.0.0.1:8000:8000"
