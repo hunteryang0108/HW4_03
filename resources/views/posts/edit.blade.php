@@ -26,14 +26,10 @@
                     @enderror
                 </div>
                 
+            
                 <div class="mb-4">
-                    <label for="tags" class="block font-medium text-sm mb-2">標籤 (用逗號分隔)</label>
-                    <input type="text" name="tags" id="tags" value="{{ old('tags', $postTags) }}"
-                           class="w-full px-3 py-2 border border-zinc-300 dark:border-zinc-600 rounded-md focus:outline-none focus:ring focus:ring-accent focus:ring-opacity-50 bg-white dark:bg-zinc-800">
-                    <p class="text-zinc-500 dark:text-zinc-400 text-sm mt-1">例如：Laravel, PHP, 教學</p>
-                    @error('tags')
-                        <p class="text-red-500 text-sm mt-1">{{ $message }}</p>
-                    @enderror
+                    <label for="tags" class="block font-medium text-sm mb-2">標籤 (可多選)</label>
+                    <input id="tags" name="tags" value="{{ $postTags ?? '' }}" class="w-full px-3 py-2 border border-zinc-300 dark:border-zinc-600 rounded-md">
                 </div>
                 
                 <div class="mb-4">
@@ -52,9 +48,9 @@
                     @if($post->image)
                     <div class="mb-2">
                         <div class="mt-2 mb-2">目前圖片：</div>
-                        <img src="{{ Storage::url($post->image) }}" 
-                             alt="{{ $post->title }}" 
-                             class="max-w-md h-auto rounded-lg">
+                        <img src="data:image/jpeg;base64,{{ base64_encode($post->image) }}" 
+                            alt="{{ $post->title }}" 
+                            class="max-w-md h-auto rounded-lg">
                     </div>
                     @endif
                     

@@ -62,9 +62,9 @@
             <!-- 圖片 -->
             @if($post->image)
             <div class="mb-6">
-                <img src="{{ Storage::url($post->image) }}" 
-                     alt="{{ $post->title }}" 
-                     class="max-w-full h-auto rounded-lg">
+                <img src="data:image/jpeg;base64,{{ base64_encode($post->image) }}" 
+                    alt="{{ $post->title }}" 
+                    class="max-w-full h-auto rounded-lg">
             </div>
             @endif
             
