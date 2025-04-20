@@ -8,6 +8,7 @@ use Illuminate\Notifications\Notifiable;
 use Illuminate\Support\Str;
 use Illuminate\Database\Eloquent\Relations\HasOne;
 use Illuminate\Database\Eloquent\Relations\HasMany;
+use Illuminate\Support\Facades\Storage;
 
 class User extends Authenticatable
 {
@@ -54,7 +55,7 @@ class User extends Authenticatable
     {
         return Str::of($this->name)
             ->explode(' ')
-            ->map(fn (string $name) => Str::of($name)->substr(0, 1))
+            ->map(fn(string $name) => Str::of($name)->substr(0, 1))
             ->implode('');
     }
 
@@ -63,7 +64,7 @@ class User extends Authenticatable
     {
         return $this->hasOne(NewProfile::class, 'user_id');
     }
-    
+
 
     /**
      * Get the posts for the user.
@@ -72,7 +73,7 @@ class User extends Authenticatable
     {
         return $this->hasMany(Post::class);
     }
-    
+
 
     /**
      * Get the comments for the user.
@@ -87,6 +88,12 @@ class User extends Authenticatable
      */
     public function avatarUrl($size = 40): string
     {
+        // 如果有 profile 且有頭像，使用上傳的頭像
+        if ($this->profile && $this->profile->avatar) {
+            return asset('storage/avatars/' . $this->profile->avatar);
+        }
+
+        // 使用預設生成的頭像
         $name = urlencode($this->name);
         $bgColor = substr(md5($this->email), 0, 6);
         return "https://ui-avatars.com/api/?name={$name}&size={$size}&background={$bgColor}&color=ffffff";
@@ -104,7 +111,7 @@ class User extends Authenticatable
     {
         return $this->hasMany(Favorite::class);
     }
-    
+
     /**
      * Get the favorited posts for the user.
      */
@@ -112,7 +119,7 @@ class User extends Authenticatable
     {
         return $this->belongsToMany(Post::class, 'favorites', 'user_id', 'post_id')->withTimestamps();
     }
-    
+
     /**
      * Check if the user has favorited a post.
      */
@@ -120,5 +127,4 @@ class User extends Authenticatable
     {
         return $this->favorites()->where('post_id', $post->id)->exists();
     }
-
 }
