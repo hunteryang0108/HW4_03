@@ -39,27 +39,18 @@ class NewProfileController extends Controller
         $request->validate([
             'birth'  => 'nullable|date',
             'bio'    => 'nullable|string|max:1000',
-            'avatar' => 'nullable|image|max:2048',
+            // 移除 avatar 驗證
         ]);
-
+    
         // 確保 profile 存在（若無則建立）
         $profile = $user->profile ?? $user->profile()->create();
-
+    
         $profile->birth = $request->birth;
         $profile->bio = $request->bio;
-
-        if ($request->hasFile('avatar')) {
-            if ($profile->avatar && Storage::disk('public')->exists('avatars/' . $profile->avatar)) {
-                Storage::disk('public')->delete('avatars/' . $profile->avatar);
-            }
-
-            $filename = uniqid() . '.' . $request->file('avatar')->getClientOriginalExtension();
-            $request->file('avatar')->storeAs('avatars', $filename, 'public');
-            $profile->avatar = $filename;
-        }
-
+    
         $profile->save();
-
+    
         return redirect()->route('profile.show', $user)->with('success', '個人檔案已更新');
     }
+    
 }

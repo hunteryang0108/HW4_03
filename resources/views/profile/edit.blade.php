@@ -11,8 +11,8 @@
                 @method('PUT')
 
                 <!-- 頭像上傳 -->
-                <div class="space-y-4">
-                    <h2 class="text-lg font-semibold">目前頭像</h2>
+                <!-- <div class="space-y-4">
+                    <h2 class="text-lg font-semibold">頭像</h2>
                     <div class="flex flex-col sm:flex-row items-center gap-6">
                         <img id="preview" src="{{ $user->profile?->getAvatarUrl() }}"
                             class="w-10 h-10 rounded-full object-cover border-2 border-zinc-200 dark:border-zinc-700">
@@ -21,17 +21,17 @@
                             <input type="file" name="avatar" class="hidden" id="avatarInput">
                         </label>
                     </div>
-                </div>
+                </div> -->
 
                 <!-- 頭像預覽 JS -->
-                <script>
+                <!-- <script>
                     document.getElementById('avatarInput').addEventListener('change', function(event) {
                         const [file] = event.target.files;
                         if (file) {
                             document.getElementById('preview').src = URL.createObjectURL(file);
                         }
                     });
-                </script>
+                </script> -->
 
                 <!-- 生日 -->
                 <div class="space-y-4">
