@@ -15,6 +15,7 @@
                 <flux:navlist.group :heading="__('Platform')" class="grid">
                     <flux:navlist.item icon="home" :href="route('dashboard')" :current="request()->routeIs('dashboard')" wire:navigate>{{ __('Dashboard') }}</flux:navlist.item>
                     <flux:navlist.item icon="message-circle" :href="route('posts.index')" :current="request()->routeIs('posts.*')" wire:navigate>{{ __('留言板') }}</flux:navlist.item>
+                    <flux:navlist.item icon="user" :href="route('profile.show', auth()->id())" :current="request()->routeIs('profile.*')" wire:navigate>{{ __('個人檔案') }}</flux:navlist.item>
                 </flux:navlist.group>
             </flux:navlist>
 
