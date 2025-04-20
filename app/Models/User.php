@@ -96,4 +96,29 @@ class User extends Authenticatable
     {
         return $this->hasMany(Like::class);
     }
+
+    /**
+     * Get the favorites for the user.
+     */
+    public function favorites()
+    {
+        return $this->hasMany(Favorite::class);
+    }
+    
+    /**
+     * Get the favorited posts for the user.
+     */
+    public function favoritePosts()
+    {
+        return $this->belongsToMany(Post::class, 'favorites', 'user_id', 'post_id')->withTimestamps();
+    }
+    
+    /**
+     * Check if the user has favorited a post.
+     */
+    public function hasFavorited(Post $post)
+    {
+        return $this->favorites()->where('post_id', $post->id)->exists();
+    }
+
 }

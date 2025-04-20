@@ -107,5 +107,42 @@
                 @endif
             </div>
         </flux:card>
+
+
+        <!-- 收藏的貼文 -->
+        <flux:card>
+                    <div class="text-center py-4">
+                        <flux:heading size="lg" class="mb-6">收藏的貼文</flux:heading>
+
+                        @if ($favoritePosts->isEmpty())
+                        <p class="text-zinc-500 dark:text-zinc-400">還沒有收藏任何貼文。</p>
+                        @else
+                        <div class="space-y-4 max-w-3xl mx-auto">
+                            @foreach ($favoritePosts as $post)
+                            <div class="bg-zinc-50 dark:bg-zinc-800 p-4 rounded-lg relative">
+                                <div style="position: absolute; top: 8px; right: 8px; left: auto;">
+                                    <flux:button
+                                        href="{{ route('posts.show', $post) }}"
+                                        variant="outline"
+                                        size="sm">
+                                        查看更多
+                                    </flux:button>
+                                </div>
+
+                                <h3 class="text-zinc-700 dark:text-zinc-300 font-semibold">
+                                    {{ $post->title }}
+                                </h3>
+                                <p class="text-zinc-600 dark:text-zinc-400 text-sm mt-2">{{ Str::limit($post->content, 100) }}</p>
+                                <div class="flex justify-between items-center mt-2">
+                                    <p class="text-zinc-500 dark:text-zinc-400 text-xs">作者：{{ $post->user->name }}</p>
+                                    <p class="text-zinc-500 dark:text-zinc-400 text-xs">收藏時間：{{ $post->pivot->created_at->format('Y-m-d H:i') }}</p>
+                                </div>
+                            </div>
+                            @endforeach
+                        </div>
+                        @endif
+                    </div>
+                </flux:card>
+
     </div>
 </x-layouts.app>

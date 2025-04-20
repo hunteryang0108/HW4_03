@@ -44,6 +44,10 @@ Route::middleware(['auth'])->group(function () {
     //like相關路由
     Route::post('/posts/{post}/like', [\App\Http\Controllers\LikeController::class, 'toggle'])->name('posts.like');
 
+    // favorite相關路由
+    Route::post('/posts/{post}/favorite', [\App\Http\Controllers\FavoriteController::class, 'toggle'])->name('posts.favorite');
+    Route::get('/favorites', [\App\Http\Controllers\FavoriteController::class, 'index'])->name('favorites.index');
+
     // 標籤
     Route::get('/api/tags', function () {
         $tags = \App\Models\Tag::all()->map(function($tag) {

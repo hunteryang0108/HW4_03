@@ -28,5 +28,8 @@ class DatabaseSeeder extends Seeder
          
          // 最後執行留言 seeder
          $this->call(CommentsTableSeeder::class);
+
+         // 最後執行收藏 seeder
+         $this->call(FavoritesTableSeeder::class);
     }
 }
