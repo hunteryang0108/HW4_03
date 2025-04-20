@@ -15,10 +15,10 @@ class PostController extends Controller
     {
         $tag = $request->query('tag');
         $sort = $request->query('sort', 'latest'); // 預設為最新
-        
+
         $query = Post::where('deleted', false)
                      ->with(['user', 'tags']);
-        
+
         // 依照排序選項
         switch ($sort) {
             case 'commented':
@@ -28,17 +28,17 @@ class PostController extends Controller
             default:
                 $query->orderBy('created_at', 'desc');
         }
-                     
+
         // 如果有標籤參數，則過濾文章
         if ($tag) {
             $query->whereHas('tags', function ($q) use ($tag) {
                 $q->where('slug', $tag);
             });
         }
-        
+
         $posts = $query->paginate(10);
         $allTags = Tag::orderBy('posts_count', 'desc')->take(20)->get();
-        
+
         return view('posts.index', [
             'posts' => $posts,
             'tags' => $allTags,
@@ -46,14 +46,14 @@ class PostController extends Controller
             'currentSort' => $sort
         ]);
     }
-    
+
     // 顯示創建文章表單
     public function create()
     {
         $tags = Tag::orderBy('name')->get();
         return view('posts.create', compact('tags'));
     }
-        
+
     // 儲存新文章
     public function store(Request $request)
     {
@@ -61,112 +61,124 @@ class PostController extends Controller
             'title' => 'required|string|max:255',
             'content' => 'required|string',
             'tags' => 'nullable|string',
-            'image' => 'nullable|image|max:2048', // 最大2MB
+            'image' => 'nullable|image|max:2048',
         ]);
-        
+
         $post = new Post([
             'title' => $validated['title'],
             'content' => $validated['content'],
             'user_id' => Auth::id(),
         ]);
-        
-        // 處理圖片上傳
+
         if ($request->hasFile('image')) {
             $post->image = file_get_contents($request->file('image')->getRealPath());
         }
-        
+
         $post->save();
-        
-        // 處理標籤
+
         if (isset($validated['tags'])) {
-            // 處理可能的 JSON 格式
-            if (is_string($validated['tags'])) {
-                if (str_starts_with($validated['tags'], '[')) {
-                    // 可能是 JSON 數組
-                    $tagNames = json_decode($validated['tags'], true) ?: explode(',', $validated['tags']);
-                } else {
-                    // 普通的逗號分隔文本
-                    $tagNames = explode(',', $validated['tags']);
-                }
-            } else {
-                $tagNames = $validated['tags'];
-            }
-            
-            $post->syncTagNames($tagNames);
+            $tagIds = $this->processTagsInput($validated['tags']);
+            $post->tags()->sync($tagIds);
         }
-        
-        return redirect()->route('posts.show', $post)
-            ->with('success', '文章發佈成功！');
+
+        return redirect()->route('posts.show', $post)->with('success', '文章發佈成功！');
     }
-    
+
     // 顯示單篇文章
     public function show(Post $post)
     {
         if ($post->deleted) {
             abort(404);
         }
-        
+
         $post->load(['user', 'tags', 'comments.user']);
-        
+
         return view('posts.show', compact('post'));
     }
-    
+
     // 顯示編輯文章表單
     public function edit(Post $post)
     {
         $this->authorize('update', $post);
-        
+
         $allTags = Tag::orderBy('name')->get();
         $postTags = $post->tags->pluck('name')->implode(',');
-        
-        return view('posts.edit', compact('post', 'allTags', 'postTags'));
+
+        $postTagsJson = $post->tags->map(function ($tag) {
+            return [
+                'value' => $tag->id,
+                'text' => $tag->name
+            ];
+        })->toJson();
+
+        return view('posts.edit', compact('post', 'allTags', 'postTags', 'postTagsJson'));
     }
-    
+
     // 更新文章
     public function update(Request $request, Post $post)
     {
         $this->authorize('update', $post);
-        
+
         $validated = $request->validate([
             'title' => 'required|string|max:255',
             'content' => 'required|string',
             'tags' => 'nullable|string',
             'image' => 'nullable|image|max:2048',
         ]);
-        
+
         $post->title = $validated['title'];
         $post->content = $validated['content'];
-        
-        // 處理圖片更新
+
         if ($request->hasFile('image')) {
-            // 直接更新二進制數據
             $post->image = file_get_contents($request->file('image')->getRealPath());
         }
-        
+
         $post->save();
-        
-        // 處理標籤
+
         if (isset($validated['tags'])) {
-            $tagNames = explode(',', $validated['tags']);
-            $post->syncTagNames($tagNames);
+            $tagIds = $this->processTagsInput($validated['tags']);
+            $post->tags()->sync($tagIds);
         } else {
             $post->tags()->detach();
         }
-        
-        return redirect()->route('posts.show', $post)
-            ->with('success', '文章更新成功！');
+
+        return redirect()->route('posts.show', $post)->with('success', '文章更新成功！');
     }
-    
-    public function destroy(Post $post){
+
+    // 刪除文章
+    public function destroy(Post $post)
+    {
         $this->authorize('delete', $post);
-        
-        $postId = $post->id;
-        
-        // 軟刪除
+
         $post->deleted = true;
         $post->save();
-        
-        return redirect()->route('posts.index')
-            ->with('success', '文章已成功刪除');
+
+        return redirect()->route('posts.index')->with('success', '文章已成功刪除');
+    }
+
+    // 標籤解析輔助方法
+    private function processTagsInput($tagsInput)
+    {
+        $tagIds = [];
+
+        if (!empty($tagsInput)) {
+            $decodedTags = json_decode($tagsInput, true);
+
+            if (is_array($decodedTags)) {
+                foreach ($decodedTags as $tag) {
+                    if (isset($tag['value'])) {
+                        $tagIds[] = $tag['value'];
+                    }
+                }
+            } else {
+                $tagNames = explode(',', $tagsInput);
+                foreach ($tagNames as $name) {
+                    $tag = Tag::firstOrCreate(['name' => trim($name)]);
+                    $tagIds[] = $tag->id;
+                }
+            }
+        }
+
+        return $tagIds;
     }
 }
