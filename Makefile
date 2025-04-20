@@ -1,4 +1,4 @@
-.PHONY: build env clean up down reup start stop restart composer npm laravel nginx dev
+.PHONY: build env clean up down reup start stop restart composer npm laravel nginx dev prod
 
 DOCKER_COMPOSE := $(if $(shell command -v docker-compose), docker-compose, docker compose)
 HOSTNAME := $(shell hostname -I | awk '{split($$1, ip, "."); printf "sd%02d.yeahlowflicker.directory", (ip[4] - 228) / 2}')
@@ -52,3 +52,9 @@ nginx:
 
 dev:
 	@$(DOCKER_COMPOSE) exec vite bash
+
+prod:
+	@$(DOCKER_COMPOSE) run --rm vite bash -c "npm run build"
+	@$(DOCKER_COMPOSE) down vite
+	@docker system prune --all -f
+	@sed -i '/vite:/,/network:/ {/deploy:/s/^\(\s*\)#/\1/; /replicas:/s/^\(\s*\)#/\1/}' docker-compose.yml
