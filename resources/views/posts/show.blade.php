@@ -149,103 +149,76 @@
             </div>
             @endauth
             
-         <!-- 评论区 -->
-<div class="bg-white dark:bg-zinc-800 border border-zinc-200 dark:border-zinc-700 rounded-lg p-6">
-    <h2 class="text-xl font-bold mb-6">評論 ({{ $post->comments->where('deleted', false)->count() }})</h2>
-    
-    @auth
-    <div class="mb-8">
-        <form action="{{ route('comments.store', $post) }}" method="POST">
-            @csrf
-            <div class="mb-4">
-                <label for="content" class="block text-sm font-semibold mb-2">發表評論</label>
-                <textarea name="content" id="content" rows="4" 
-                          class="w-full px-3 py-2 border border-zinc-300 dark:border-zinc-600 rounded-md focus:outline-none focus:ring focus:ring-accent focus:ring-opacity-50 bg-white dark:bg-zinc-800"
-                          required></textarea>
-            </div>
-            <div class="flex justify-end">
-                <button type="submit" 
-                        class="px-4 py-2 bg-accent text-accent-foreground rounded-md">
-                    發表評論
-                </button>
-            </div>
-        </form>
-    </div>
-    @else
-    <div class="mb-8 p-4 bg-zinc-100 dark:bg-zinc-700 rounded-md text-center">
-        請 <a href="{{ route('login') }}" class="text-accent hover:underline">登入</a> 後發表評論
-    </div>
-    @endauth
-    
-    <!-- 評論列表 -->
-    <div class="space-y-6">
-        @forelse($post->comments->where('deleted', false) as $comment)
-        <div class="border-t border-zinc-200 dark:border-zinc-700 pt-4" id="comment-{{ $comment->id }}">
-            <div class="flex justify-between items-start">
-                <div class="flex items-center mb-2">
-                    <img src="{{ $comment->user->avatarUrl(32) }}" alt="{{ $comment->user->name }}" class="h-8 w-8 rounded-full mr-2">
-                    <div>
-                        <div class="font-semibold">{{ $comment->user->name }}</div>
-                        <div class="text-zinc-500 dark:text-zinc-400 text-xs">
-                            {{ $comment->created_at->format('Y-m-d H:i') }}
+            <!-- 評論列表 -->
+            <div class="space-y-6">
+                @forelse($post->comments->where('deleted', false) as $comment)
+                <div class="border-t border-zinc-200 dark:border-zinc-700 pt-4" id="comment-{{ $comment->id }}">
+                    <div class="flex justify-between items-start">
+                        <div class="flex items-center mb-2">
+                            <img src="{{ $comment->user->avatarUrl(32) }}" alt="{{ $comment->user->name }}" class="h-8 w-8 rounded-full mr-2">
+                            <div>
+                                <div class="font-semibold">{{ $comment->user->name }}</div>
+                                <div class="text-zinc-500 dark:text-zinc-400 text-xs">
+                                    {{ $comment->created_at->format('Y-m-d H:i') }}
+                                </div>
+                            </div>
                         </div>
+                        
+                        @if(Auth::id() === $comment->user_id || Auth::id() === $post->user_id)
+                        <div class="flex space-x-2">
+                            @if(Auth::id() === $comment->user_id)
+                            <button onclick="toggleEditForm({{ $comment->id }})" class="text-accent hover:underline text-sm">
+                                編輯
+                            </button>
+                            @endif
+                            
+                            <form action="{{ route('comments.destroy', $comment) }}" method="POST" class="inline" 
+                                  onsubmit="return confirm('確定要刪除這則評論嗎？');">
+                                @csrf
+                                @method('DELETE')
+                                <button type="submit" class="text-red-500 hover:underline text-sm">
+                                    刪除
+                                </button>
+                            </form>
+                        </div>
+                        @endif
                     </div>
-                </div>
-                
-                @if(Auth::id() === $comment->user_id || Auth::id() === $post->user_id)
-                <div class="flex space-x-2">
-                    @if(Auth::id() === $comment->user_id)
-                    <button onclick="toggleEditForm({{ $comment->id }})" class="text-accent hover:underline text-sm">
-                        編輯
-                    </button>
-                    @endif
                     
-                    <form action="{{ route('comments.destroy', $comment) }}" method="POST" class="inline" 
-                          onsubmit="return confirm('確定要刪除這則評論嗎？');">
-                        @csrf
-                        @method('DELETE')
-                        <button type="submit" class="text-red-500 hover:underline text-sm">
-                            刪除
-                        </button>
-                    </form>
+                    <div id="comment-content-{{ $comment->id }}" class="prose dark:prose-invert max-w-none ml-10">
+                        {!! nl2br(e($comment->content)) !!}
+                    </div>
+                    
+                    <!-- 編輯評論表單 -->
+                    <div id="comment-edit-{{ $comment->id }}" class="hidden mt-2">
+                        <form action="{{ route('comments.update', $comment) }}" method="POST">
+                            @csrf
+                            @method('PUT')
+                            <div class="mb-2">
+                                <textarea name="content" rows="3" 
+                                          class="w-full px-3 py-2 border border-zinc-300 dark:border-zinc-600 rounded-md focus:outline-none focus:ring focus:ring-accent focus:ring-opacity-50 bg-white dark:bg-zinc-800"
+                                          required>{{ $comment->content }}</textarea>
+                            </div>
+                            <div class="flex justify-end space-x-2">
+                                <button type="button" onclick="toggleEditForm({{ $comment->id }})" 
+                                        class="px-3 py-1 bg-zinc-200 dark:bg-zinc-700 rounded-md text-sm">
+                                    取消
+                                </button>
+                                <button type="submit" 
+                                        class="px-3 py-1 bg-accent text-accent-foreground rounded-md text-sm">
+                                    更新
+                                </button>
+                            </div>
+                        </form>
+                    </div>
                 </div>
-                @endif
-            </div>
-            
-            <div id="comment-content-{{ $comment->id }}" class="prose dark:prose-invert max-w-none ml-10">
-                {!! nl2br(e($comment->content)) !!}
-            </div>
-            
-            <!-- 編輯評論表單 -->
-            <div id="comment-edit-{{ $comment->id }}" class="hidden mt-2">
-                <form action="{{ route('comments.update', $comment) }}" method="POST">
-                    @csrf
-                    @method('PUT')
-                    <div class="mb-2">
-                        <textarea name="content" rows="3" 
-                                  class="w-full px-3 py-2 border border-zinc-300 dark:border-zinc-600 rounded-md focus:outline-none focus:ring focus:ring-accent focus:ring-opacity-50 bg-white dark:bg-zinc-800"
-                                  required>{{ $comment->content }}</textarea>
-                    </div>
-                    <div class="flex justify-end space-x-2">
-                        <button type="button" onclick="toggleEditForm({{ $comment->id }})" 
-                                class="px-3 py-1 bg-zinc-200 dark:bg-zinc-700 rounded-md text-sm">
-                            取消
-                        </button>
-                        <button type="submit" 
-                                class="px-3 py-1 bg-accent text-accent-foreground rounded-md text-sm">
-                            更新
-                        </button>
-                    </div>
-                </form>
+                @empty
+                <div class="text-center py-8 text-zinc-500 dark:text-zinc-400">
+                    目前沒有評論，成為第一個留言的人吧！
+                </div>
+                @endforelse
             </div>
         </div>
-        @empty
-        <div class="text-center py-8 text-zinc-500 dark:text-zinc-400">
-            目前沒有評論，成為第一個留言的人吧！
-        </div>
-        @endforelse
     </div>
-</div>
     
     <!-- 回到頂部按鈕 -->
     <button id="backToTop" class="fixed bottom-8 right-8 p-3 bg-accent text-accent-foreground rounded-full shadow-lg hidden">
