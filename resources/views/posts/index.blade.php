@@ -90,7 +90,7 @@
 
                         <div class="flex justify-between items-center">
                             <div class="text-zinc-500 dark:text-zinc-400 text-sm">
-                                {{ $post->comments->count() }} 則評論
+                                {{ $post->comments_count ?? $post->comments->where('deleted', false)->count() }} 則評論
                             </div>
                             <a href="{{ route('posts.show', $post) }}" class="text-accent hover:underline">
                                 閱讀更多
