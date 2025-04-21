@@ -9,13 +9,13 @@ env:
 	@$(DOCKER_COMPOSE) run --rm composer sh -c "rm -f .env \
 		&& composer run post-root-package-install \
 		&& composer run post-create-project-cmd \
-		&& mv .env .env.local && mv ./database/database.sqlite ./database/local.sqlite \
-		&& sed -i '7s/en/zh-tw/;24iDB_DATABASE=./database/local.sqlite' ./.env.local \
+		&& mv .env .env.local && mv database/database.sqlite database/local.sqlite \
+		&& sed -i '7s/en/zh-tw/;24iDB_DATABASE=./database/local.sqlite' .env.local \
 		&& composer run post-root-package-install \
 		&& composer run post-create-project-cmd \
-		&& mv .env .env.production && mv ./database/database.sqlite ./database/production.sqlite \
-		&& sed -i '2s/local/production/;4s/true/false/;5s/localhost/$(HOSTNAME)/;7s/en/zh-tw/;24iDB_DATABASE=./database/production.sqlite' ./.env.production \
-		&& ln -sf /.env .env && ln -sf /server.hmr ./public/hot \
+		&& mv .env .env.production && mv database/database.sqlite database/production.sqlite \
+		&& sed -i '2s/local/production/;4s/true/false/;5s/localhost/$(HOSTNAME)/;7s/en/zh-tw/;24iDB_DATABASE=./database/production.sqlite' .env.production \
+		&& ln -sf /.env .env && ln -sf /server.hmr public/hot \
 		&& chmod -R a+w ./bootstrap/cache ./storage ./database"
 
 clean:
@@ -54,10 +54,15 @@ dev:
 	@$(DOCKER_COMPOSE) exec vite bash
 
 prod:
+	@sed -i '4s/localhost/$(HOSTNAME)/;' nginx.conf
+	@sed -i '/nginx:/,/vite:/{/- \"443:443\"/s/^\(\s*\)#/\1/}' docker-compose.yml
+	@sed -i '/vite:/,/network:/{/deploy:/s/^\(\s*\)#/\1/;/replicas:/s/^\(\s*\)#/\1/}' docker-compose.yml
 	@$(DOCKER_COMPOSE) run --rm vite bash -c "npm run build"
-	@$(DOCKER_COMPOSE) down vite
+	@$(DOCKER_COMPOSE) down vite nginx
+	@$(DOCKER_COMPOSE) run --rm --service-ports nginx sh -c "apk add --no-cache certbot-nginx \
+		&& certbot --nginx --agree-tos --register-unsafely-without-email --non-interactive -d $(HOSTNAME)"
+	@$(DOCKER_COMPOSE) up -d nginx
 	@docker system prune --all -f
-	@sed -i '/vite:/,/network:/ {/deploy:/s/^\(\s*\)#/\1/; /replicas:/s/^\(\s*\)#/\1/}' docker-compose.yml
 
 seed:
 	@$(DOCKER_COMPOSE) run --rm laravel sh -c "php artisan db:seed --force"

@@ -10,6 +10,10 @@ RUN bash -c "curl -o- https://raw.githubusercontent.com/nvm-sh/nvm/v0.40.2/insta
    && source '/root/.nvm/nvm.sh' \
    && nvm install 22"
 
+RUN apt -y autoremove \
+   && apt clean \
+   && rm -rf /var/lib/apt/lists/* /tmp/* /var/tmp/*
+
 RUN sed -i 's/^# umask .*/umask 000/' /root/.bashrc
 
 ENTRYPOINT ["bash", "-c", "source /root/.bashrc && exec \"$@\"", "--"]
