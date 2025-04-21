@@ -13,6 +13,48 @@
                 </a>
             </div>
             
+            <!-- 搜尋框與高級選項 -->
+            <div class="mb-6">
+                <form action="{{ route('search') }}" method="GET" class="relative">
+                    <div class="relative">
+                        <input type="text" name="query" id="search-input" 
+                               class="w-full px-4 py-3 pl-10 pr-10 border border-zinc-300 dark:border-zinc-600 rounded-lg focus:outline-none focus:ring-2 focus:ring-accent focus:border-transparent transition-shadow bg-white dark:bg-zinc-800"
+                               placeholder="搜尋文章、使用者名稱..."
+                               value="{{ $query }}"
+                               autocomplete="off">
+                        <div class="absolute inset-y-0 left-0 flex items-center pl-3 pointer-events-none">
+                            <svg xmlns="http://www.w3.org/2000/svg" class="h-5 w-5 text-zinc-400" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+                                <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M21 21l-6-6m2-5a7 7 0 11-14 0 7 7 0 0114 0z" />
+                            </svg>
+                        </div>
+                        <button type="submit" class="absolute inset-y-0 right-0 flex items-center pr-3">
+                            <svg xmlns="http://www.w3.org/2000/svg" class="h-5 w-5 text-zinc-400 hover:text-accent" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+                                <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M14 5l7 7m0 0l-7 7m7-7H3" />
+                            </svg>
+                        </button>
+                    </div>
+                    
+                    <!-- 高級搜尋選項 -->
+                    <div class="flex text-sm mt-2 text-zinc-500 dark:text-zinc-400">
+                        <div class="flex items-center mr-4">
+                            <input type="checkbox" id="search-title" name="in_title" value="1" class="mr-1" 
+                                {{ isset($searchOptions['in_title']) && $searchOptions['in_title'] ? 'checked' : '' }}>
+                            <label for="search-title">標題</label>
+                        </div>
+                        <div class="flex items-center mr-4">
+                            <input type="checkbox" id="search-content" name="in_content" value="1" class="mr-1" 
+                                {{ isset($searchOptions['in_content']) && $searchOptions['in_content'] ? 'checked' : '' }}>
+                            <label for="search-content">內容</label>
+                        </div>
+                        <div class="flex items-center">
+                            <input type="checkbox" id="search-user" name="in_user" value="1" class="mr-1" 
+                                {{ isset($searchOptions['in_user']) && $searchOptions['in_user'] ? 'checked' : '' }}>
+                            <label for="search-user">使用者</label>
+                        </div>
+                    </div>
+                </form>
+            </div>
+            
             <!-- 搜尋結果資訊 -->
             <div class="mb-6 bg-white dark:bg-zinc-800 p-4 rounded-lg">
                 <p>
@@ -55,6 +97,11 @@
                                     <a href="{{ route('posts.show', $post) }}" class="hover:underline">
                                         {{ $post->title }}
                                     </a>
+                                    @if(stripos($post->title, $query) === false && stripos($post->user->name, $query) !== false)
+                                        <span class="text-sm font-normal bg-yellow-100 dark:bg-yellow-800 px-2 py-1 rounded ml-2">
+                                            使用者名稱符合
+                                        </span>
+                                    @endif
                                 </h2>
                                 <div class="text-sm text-zinc-500 dark:text-zinc-400">
                                     {{ $post->created_at->format('Y-m-d H:i') }}
@@ -63,8 +110,14 @@
 
                             <div class="flex items-center">
                                 <img src="{{ $post->user->avatarUrl(32) }}" class="h-8 w-8 rounded-full mr-2" alt="{{ $post->user->name }}">
-                                <div class="text-sm text-zinc-500 dark:text-zinc-400">
-                                    由 {{ $post->user->name }} 發佈
+                                <div class="text-sm">
+                                    由 
+                                    @if(stripos($post->user->name, $query) !== false)
+                                        <span class="font-semibold text-accent">{{ $post->user->name }}</span>
+                                    @else
+                                        <span class="text-zinc-500 dark:text-zinc-400">{{ $post->user->name }}</span>
+                                    @endif
+                                    發佈
                                 </div>
                             </div>
 
@@ -98,7 +151,7 @@
 
                 <!-- 分頁 -->
                 <div class="mt-6">
-                    {{ $posts->appends(['query' => $query])->links() }}
+                    {{ $posts->appends(request()->except('page'))->links() }}
                 </div>
             @endif
         </div>
