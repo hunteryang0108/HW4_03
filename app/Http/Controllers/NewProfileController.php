@@ -52,13 +52,7 @@ class NewProfileController extends Controller
         $profile->bio = $request->bio;
 
         if ($request->hasFile('avatar')) {
-            if ($profile->avatar && Storage::disk('public')->exists('avatars/' . $profile->avatar)) {
-                Storage::disk('public')->delete('avatars/' . $profile->avatar);
-            }
-
-            $filename = uniqid() . '.' . $request->file('avatar')->getClientOriginalExtension();
-            $request->file('avatar')->storeAs('avatars', $filename, 'public');
-            $profile->avatar = $filename;
+            $profile->avatar = file_get_contents($request->file('avatar')->getRealPath());
         }
 
         $profile->save();

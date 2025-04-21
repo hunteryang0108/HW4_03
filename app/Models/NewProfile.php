@@ -29,17 +29,4 @@ class NewProfile extends Model
     {
         return $this->belongsTo(User::class);
     }
-
-    /**
-     * 回傳頭像的完整 URL
-     */
-    public function getAvatarUrl(): ?string
-    {
-        if ($this->avatar) {
-            $base64Image = base64_encode($this->avatar);
-            return "data:image/png;base64,{$base64Image}";
-        }
-        return null;
-    }
-    
 }
