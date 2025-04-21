@@ -5,7 +5,7 @@
             <flux:subheading>編輯您的個人資料</flux:subheading>
         </div>
 
-        <flux:card>
+        <flux:card class="p-5">
             <form method="POST" action="{{ route('profile.update', $user) }}" enctype="multipart/form-data" class="space-y-8">
                 @csrf
                 @method('PUT')
