@@ -2,6 +2,12 @@
     <div class="container mx-auto px-4 py-8">
         <div class="mb-8">
             <h1 class="text-3xl font-bold mb-4">留言板</h1>
+
+            <!-- 搜尋欄 -->
+            <x-search-bar />
+
+
+
             
             <!-- 標籤過濾區域 -->
             <div class="mb-6 py-2 overflow-x-auto scrollbar-thin scrollbar-thumb-zinc-200 dark:scrollbar-thumb-zinc-700">

@@ -54,6 +54,11 @@ Route::middleware(['auth'])->group(function () {
         });
         return response()->json($tags);
     })->name('api.tags');
+
+    // 搜尋相關路由
+    Route::get('/search', [App\Http\Controllers\SearchController::class, 'search'])->name('search');
+    Route::get('/search/suggestions', [App\Http\Controllers\SearchController::class, 'suggestions'])->name('search.suggestions');
+    Route::post('/search/clear-history', [App\Http\Controllers\SearchController::class, 'clearHistory'])->name('search.clear-history');
 });
 
 use App\Http\Controllers\NewProfileController;
