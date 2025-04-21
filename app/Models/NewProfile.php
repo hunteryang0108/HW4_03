@@ -33,12 +33,13 @@ class NewProfile extends Model
     /**
      * 回傳頭像的完整 URL
      */
-    public function getAvatarUrl(): string
-{
-    if ($this->avatar) {
-        return asset('storage/avatars/' . $this->avatar);
+    public function getAvatarUrl(): ?string
+    {
+        if ($this->avatar) {
+            $base64Image = base64_encode($this->avatar);
+            return "data:image/png;base64,{$base64Image}";
+        }
+        return null;
     }
-    return asset('default-avatar.png'); // 預設頭像路徑
-}
     
 }

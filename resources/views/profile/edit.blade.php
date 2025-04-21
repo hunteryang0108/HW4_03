@@ -5,7 +5,7 @@
             <flux:subheading>編輯您的個人資料</flux:subheading>
         </div>
 
-        <flux:card class="p-5">
+        <flux:card>
             <form method="POST" action="{{ route('profile.update', $user) }}" enctype="multipart/form-data" class="space-y-8">
                 @csrf
                 @method('PUT')
@@ -17,12 +17,10 @@
                         <img id="preview" src="{{ $user->avatarUrl() }}"
                             class="w-10 h-10 rounded-full object-cover border-2 border-zinc-200 dark:border-zinc-700">
 
-                        <div class="flex gap-2">
-                            <label class="cursor-pointer bg-zinc-200 dark:bg-zinc-700 px-4 py-2 rounded-lg">
-                                選擇檔案
-                                <input type="file" name="avatar" class="hidden" id="avatarInput">
-                            </label>
-                        </div>
+                        <label class="cursor-pointer bg-zinc-200 dark:bg-zinc-700 px-4 py-2 rounded-lg">
+                            選擇檔案
+                            <input type="file" name="avatar" class="hidden" id="avatarInput">
+                        </label>
                     </div>
                 </div>
 
