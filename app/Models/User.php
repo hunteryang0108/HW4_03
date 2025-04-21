@@ -87,17 +87,11 @@ class User extends Authenticatable
      * 產生使用者頭像URL (基於名字的初始字母)
      */
     public function avatarUrl($size = 40): string
-    {
-        // 如果有 profile 且有頭像，使用上傳的頭像
-        if ($this->profile && $this->profile->avatar) {
-            return asset('storage/avatars/' . $this->profile->avatar);
-        }
-
-        // 使用預設生成的頭像
-        $name = urlencode($this->name);
-        $bgColor = substr(md5($this->email), 0, 6);
-        return "https://ui-avatars.com/api/?name={$name}&size={$size}&background={$bgColor}&color=ffffff";
-    }
+     {
+         $name = urlencode($this->name);
+         $bgColor = substr(md5($this->email), 0, 6);
+         return "https://ui-avatars.com/api/?name={$name}&size={$size}&background={$bgColor}&color=ffffff";
+     }
 
     public function likes()
     {
