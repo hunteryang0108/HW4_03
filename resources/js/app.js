@@ -133,8 +133,20 @@ document.addEventListener('DOMContentLoaded', function() {
         searchInput.addEventListener('input', debounce(function() {
             const query = searchInput.value.trim();
             
+            // 獲取搜尋選項
+            const inTitle = document.getElementById('search-title')?.checked || false;
+            const inContent = document.getElementById('search-content')?.checked || false;
+            const inUser = document.getElementById('search-user')?.checked || false;
+            
+            // 構建參數
+            let params = new URLSearchParams();
+            params.append('query', query);
+            if (inTitle) params.append('in_title', '1');
+            if (inContent) params.append('in_content', '1');
+            if (inUser) params.append('in_user', '1');
+            
             // 獲取建議
-            fetch(`/search/suggestions?query=${encodeURIComponent(query)}`)
+            fetch(`/search/suggestions?${params.toString()}`)
                 .then(response => response.json())
                 .then(data => {
                     suggestionsContent.innerHTML = '';
@@ -177,6 +189,50 @@ document.addEventListener('DOMContentLoaded', function() {
                     console.error('搜尋建議獲取失敗:', error);
                 });
         }, 300));
+        
+        // 頁面載入時，如果輸入框為空，自動載入熱門推薦
+        if (searchInput.value.trim() === '') {
+            fetch('/search/suggestions')
+                .then(response => response.json())
+                .then(data => {
+                    suggestionsContent.innerHTML = '';
+                    
+                    if (data.length === 0) {
+                        suggestionsContent.innerHTML = '<div class="px-4 py-2 text-zinc-500 dark:text-zinc-400 text-sm">沒有熱門推薦</div>';
+                    } else {
+                        data.forEach(post => {
+                            const item = document.createElement('a');
+                            item.href = `/posts/${post.id}`;
+                            item.className = 'block px-4 py-2 hover:bg-zinc-100 dark:hover:bg-zinc-700 transition-colors';
+                            
+                            const content = document.createElement('div');
+                            content.className = 'flex items-center';
+                            
+                            const icon = document.createElementNS('http://www.w3.org/2000/svg', 'svg');
+                            icon.setAttribute('class', 'h-4 w-4 mr-2 text-zinc-400');
+                            icon.setAttribute('fill', 'none');
+                            icon.setAttribute('viewBox', '0 0 24 24');
+                            icon.setAttribute('stroke', 'currentColor');
+                            
+                            const path = document.createElementNS('http://www.w3.org/2000/svg', 'path');
+                            path.setAttribute('stroke-linecap', 'round');
+                            path.setAttribute('stroke-linejoin', 'round');
+                            path.setAttribute('stroke-width', '2');
+                            path.setAttribute('d', 'M9 12l2 2 4-4m6 2a9 9 0 11-18 0 9 9 0 0118 0z');
+                            
+                            icon.appendChild(path);
+                            content.appendChild(icon);
+                            content.appendChild(document.createTextNode(post.title));
+                            
+                            item.appendChild(content);
+                            suggestionsContent.appendChild(item);
+                        });
+                    }
+                })
+                .catch(error => {
+                    console.error('熱門推薦獲取失敗:', error);
+                });
+        }
         
         // 點擊搜尋框時顯示下拉框
         searchInput.addEventListener('focus', function() {

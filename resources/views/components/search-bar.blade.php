@@ -3,7 +3,7 @@
         <div class="relative">
             <input type="text" name="query" id="search-input" 
                    class="w-full px-4 py-3 pl-10 pr-10 border border-zinc-300 dark:border-zinc-600 rounded-lg focus:outline-none focus:ring-2 focus:ring-accent focus:border-transparent transition-shadow bg-white dark:bg-zinc-800"
-                   placeholder="搜尋文章..."
+                   placeholder="搜尋文章、使用者名稱..."
                    autocomplete="off">
             <div class="absolute inset-y-0 left-0 flex items-center pl-3 pointer-events-none">
                 <svg xmlns="http://www.w3.org/2000/svg" class="h-5 w-5 text-zinc-400" fill="none" viewBox="0 0 24 24" stroke="currentColor">
@@ -15,6 +15,22 @@
                     <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M14 5l7 7m0 0l-7 7m7-7H3" />
                 </svg>
             </button>
+        </div>
+        
+        <!-- 高級搜尋選項 -->
+        <div class="flex text-sm mt-2 text-zinc-500 dark:text-zinc-400">
+            <div class="flex items-center mr-4">
+                <input type="checkbox" id="search-title" name="in_title" value="1" class="mr-1" checked>
+                <label for="search-title">標題</label>
+            </div>
+            <div class="flex items-center mr-4">
+                <input type="checkbox" id="search-content" name="in_content" value="1" class="mr-1" checked>
+                <label for="search-content">內容</label>
+            </div>
+            <div class="flex items-center">
+                <input type="checkbox" id="search-user" name="in_user" value="1" class="mr-1" checked>
+                <label for="search-user">使用者</label>
+            </div>
         </div>
         
         <!-- 搜尋建議與歷史紀錄下拉框 -->
@@ -29,11 +45,10 @@
                 </div>
             </div>
             
-            <!-- 搜尋歷史 -->
             <div id="search-history" class="border-t border-zinc-100 dark:border-zinc-700 p-2">
                 <div class="flex justify-between items-center text-sm font-semibold text-zinc-500 dark:text-zinc-400 px-3 py-2">
                     <span>最近搜尋</span>
-                    <form action="{{ route('search.clear-history') }}" method="POST">
+                    <form action="{{ route('search.clear-history') }}" method="POST" class="inline">
                         @csrf
                         <button type="submit" class="text-xs text-red-500 hover:underline">清除紀錄</button>
                     </form>

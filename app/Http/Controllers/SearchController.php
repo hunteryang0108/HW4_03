@@ -35,11 +35,30 @@ class SearchController extends Controller
         // 更新 session
         $request->session()->put('search_history', $searchHistory);
         
-        // 執行搜尋
+        // 取得高級搜尋選項
+        $inTitle = $request->has('in_title');
+        $inContent = $request->has('in_content');
+        $inUser = $request->has('in_user');
+        
+        // 如果都沒有選擇，預設全部搜尋
+        if (!$inTitle && !$inContent && !$inUser) {
+            $inTitle = $inContent = $inUser = true;
+        }
+        
+        // 執行搜尋 - 根據選擇的範圍
         $posts = Post::where('deleted', false)
-                     ->where(function($q) use ($query) {
-                         $q->where('title', 'like', '%' . $query . '%')
-                           ->orWhere('content', 'like', '%' . $query . '%');
+                     ->where(function($q) use ($query, $inTitle, $inContent, $inUser) {
+                         if ($inTitle) {
+                             $q->orWhere('title', 'like', '%' . $query . '%');
+                         }
+                         if ($inContent) {
+                             $q->orWhere('content', 'like', '%' . $query . '%');
+                         }
+                         if ($inUser) {
+                             $q->orWhereHas('user', function($subQuery) use ($query) {
+                                 $subQuery->where('name', 'like', '%' . $query . '%');
+                             });
+                         }
                      })
                      ->with(['user', 'tags', 'comments'])
                      ->orderBy('created_at', 'desc')
@@ -48,7 +67,14 @@ class SearchController extends Controller
         // 獲取熱門標籤
         $tags = Tag::orderBy('posts_count', 'desc')->take(10)->get();
         
-        return view('search.results', compact('posts', 'query', 'tags', 'searchHistory'));
+        // 傳遞高級搜尋選項到視圖
+        $searchOptions = [
+            'in_title' => $inTitle,
+            'in_content' => $inContent,
+            'in_user' => $inUser
+        ];
+        
+        return view('search.results', compact('posts', 'query', 'tags', 'searchHistory', 'searchOptions'));
     }
     
     public function suggestions(Request $request)
@@ -62,23 +88,54 @@ class SearchController extends Controller
                          ->orderBy('comments_count', 'desc')
                          ->take(3)
                          ->get(['id', 'title']);
+                         
+            return response()->json($posts);
         } else {
-            // 根據搜尋詞返回建議
-            $posts = Post::where('deleted', false)
-                         ->where(function($q) use ($query) {
-                             $q->where('title', 'like', '%' . $query . '%')
-                               ->orWhere('content', 'like', '%' . $query . '%');
-                         })
-                         ->take(5)
-                         ->get(['id', 'title']);
+            // 獲取搜尋選項
+            $inTitle = $request->has('in_title');
+            $inContent = $request->has('in_content');
+            $inUser = $request->has('in_user');
+            
+            // 如果都沒有選擇，預設全部搜尋
+            if (!$inTitle && !$inContent && !$inUser) {
+                $inTitle = $inContent = $inUser = true;
+            }
+            
+            // 根據搜尋詞返回建議 - 符合高級選項
+            $postsQuery = Post::where('deleted', false)
+                             ->where(function($q) use ($query, $inTitle, $inContent, $inUser) {
+                                 if ($inTitle) {
+                                     $q->orWhere('title', 'like', '%' . $query . '%');
+                                 }
+                                 if ($inContent) {
+                                     $q->orWhere('content', 'like', '%' . $query . '%');
+                                 }
+                                 if ($inUser) {
+                                     $q->orWhereHas('user', function($subQuery) use ($query) {
+                                         $subQuery->where('name', 'like', '%' . $query . '%');
+                                     });
+                                 }
+                             })
+                             ->with('user')
+                             ->take(5);
+            
+            $posts = $postsQuery->get();
+            
+            // 添加使用者提示標記
+            foreach ($posts as $post) {
+                if ($inUser && stripos($post->title, $query) === false && 
+                    stripos($post->user->name, $query) !== false) {
+                    $post->title = $post->title . ' (作者: ' . $post->user->name . ')';
+                }
+            }
+            
+            return response()->json($posts);
         }
-        
-        return response()->json($posts);
     }
     
     public function clearHistory(Request $request)
     {
         $request->session()->forget('search_history');
-        return redirect()->back();
+        return redirect()->back()->with('message', '搜尋歷史已清除');
     }
 }
