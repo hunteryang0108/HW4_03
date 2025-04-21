@@ -121,3 +121,86 @@ function initializeTagify() {
         }
     }
 }
+
+// 搜尋功能實現
+document.addEventListener('DOMContentLoaded', function() {
+    const searchInput = document.getElementById('search-input');
+    const searchDropdown = document.getElementById('search-dropdown');
+    const suggestionsContent = document.getElementById('suggestions-content');
+    
+    if (searchInput) {
+        // 監聽輸入事件
+        searchInput.addEventListener('input', debounce(function() {
+            const query = searchInput.value.trim();
+            
+            // 獲取建議
+            fetch(`/search/suggestions?query=${encodeURIComponent(query)}`)
+                .then(response => response.json())
+                .then(data => {
+                    suggestionsContent.innerHTML = '';
+                    
+                    if (data.length === 0) {
+                        suggestionsContent.innerHTML = '<div class="px-4 py-2 text-zinc-500 dark:text-zinc-400 text-sm">沒有相關建議</div>';
+                    } else {
+                        data.forEach(post => {
+                            const item = document.createElement('a');
+                            item.href = `/posts/${post.id}`;
+                            item.className = 'block px-4 py-2 hover:bg-zinc-100 dark:hover:bg-zinc-700 transition-colors';
+                            
+                            const content = document.createElement('div');
+                            content.className = 'flex items-center';
+                            
+                            const icon = document.createElementNS('http://www.w3.org/2000/svg', 'svg');
+                            icon.setAttribute('class', 'h-4 w-4 mr-2 text-zinc-400');
+                            icon.setAttribute('fill', 'none');
+                            icon.setAttribute('viewBox', '0 0 24 24');
+                            icon.setAttribute('stroke', 'currentColor');
+                            
+                            const path = document.createElementNS('http://www.w3.org/2000/svg', 'path');
+                            path.setAttribute('stroke-linecap', 'round');
+                            path.setAttribute('stroke-linejoin', 'round');
+                            path.setAttribute('stroke-width', '2');
+                            path.setAttribute('d', 'M21 21l-6-6m2-5a7 7 0 11-14 0 7 7 0 0114 0z');
+                            
+                            icon.appendChild(path);
+                            content.appendChild(icon);
+                            content.appendChild(document.createTextNode(post.title));
+                            
+                            item.appendChild(content);
+                            suggestionsContent.appendChild(item);
+                        });
+                    }
+                    
+                    searchDropdown.classList.remove('hidden');
+                })
+                .catch(error => {
+                    console.error('搜尋建議獲取失敗:', error);
+                });
+        }, 300));
+        
+        // 點擊搜尋框時顯示下拉框
+        searchInput.addEventListener('focus', function() {
+            searchDropdown.classList.remove('hidden');
+        });
+        
+        // 點擊外部時隱藏下拉框
+        document.addEventListener('click', function(event) {
+            if (!searchInput.contains(event.target) && !searchDropdown.contains(event.target)) {
+                searchDropdown.classList.add('hidden');
+            }
+        });
+    }
+    
+    // 防抖函數
+    function debounce(func, wait) {
+        let timeout;
+        return function executedFunction(...args) {
+            const later = () => {
+                clearTimeout(timeout);
+                func(...args);
+            };
+            clearTimeout(timeout);
+            timeout = setTimeout(later, wait);
+        };
+    }
+});
