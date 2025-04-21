@@ -55,6 +55,12 @@ class CommentController extends Controller
         $comment->deleted = true;
         $comment->save();
         
+        // 清除缓存，确保评论计数立即更新
+        $post = Post::find($postId);
+        if ($post) {
+            $post->load('comments'); // 重新加载评论关系
+        }
+        
         return redirect()->route('posts.show', $postId)
             ->with('success', '評論已成功刪除');
     }

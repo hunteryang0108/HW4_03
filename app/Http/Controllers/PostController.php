@@ -22,8 +22,11 @@ class PostController extends Controller
         // 依照排序選項
         switch ($sort) {
             case 'commented':
-                $query->withCount('comments')
-                      ->orderBy('comments_count', 'desc');
+                // 修改：只统计未删除的评论
+                $query->withCount(['comments' => function($query) {
+                    $query->where('deleted', false);
+                }])
+                ->orderBy('comments_count', 'desc');
                 break;
             default:
                 $query->orderBy('created_at', 'desc');
@@ -91,7 +94,12 @@ class PostController extends Controller
             abort(404);
         }
 
-        $post->load(['user', 'tags', 'comments.user']);
+        // 修改：加载关系时明确指定只加载未删除的评论
+        $post->load(['user', 'tags']);
+        $post->load(['comments' => function($query) {
+            $query->where('deleted', false);
+            $query->with('user');
+        }]);
 
         return view('posts.show', compact('post'));
     }

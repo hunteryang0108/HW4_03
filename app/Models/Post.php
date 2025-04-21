@@ -36,6 +36,12 @@ class Post extends Model
         return $this->hasMany(Comment::class);
     }
 
+    // 未删除的评论关联
+    public function activeComments()
+    {
+        return $this->hasMany(Comment::class)->where('deleted', false);
+    }
+
     //與like的關聯
     public function likes()
     {
