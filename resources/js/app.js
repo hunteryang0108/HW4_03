@@ -1,3 +1,4 @@
+import.meta.glob([ '../images/**' ]);
 // 引入 Tagify
 import Tagify from '@yaireo/tagify';
 import '@yaireo/tagify/dist/tagify.css';
