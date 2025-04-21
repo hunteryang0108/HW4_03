@@ -6,15 +6,10 @@ use App\Http\Controllers\PostController;
 use App\Http\Controllers\CommentController;
 use App\Http\Controllers\TagController;
 
-
-
 Route::get('/', function () {
-    return view('welcome');
+    if (auth()->check()) return redirect()->route('posts.index');
+    return redirect()->route('login');
 })->name('home');
-
-Route::view('dashboard', 'dashboard')
-    ->middleware(['auth'])
-    ->name('dashboard');
 
 Route::middleware(['auth'])->group(function () {
     Route::redirect('settings', 'settings/profile');
@@ -57,14 +52,9 @@ Route::middleware(['auth'])->group(function () {
                 'color' => $tag->color
             ];
         });
-        
         return response()->json($tags);
     })->name('api.tags');
-    });
-
-
-
-
+});
 
 use App\Http\Controllers\NewProfileController;
 
@@ -100,8 +90,4 @@ Route::middleware(['auth'])->group(function () {
     })->name('avatar.show');
 });
 
-
 require __DIR__.'/auth.php';
-
-    
-
