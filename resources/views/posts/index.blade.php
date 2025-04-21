@@ -14,7 +14,7 @@
                     
                     @foreach($tags as $tag)
                     <a href="{{ route('posts.index', ['tag' => $tag->slug]) }}" 
-                    class="inline-block px-4 py-2 rounded-full border transition-colors
+                    class="flex items-center justify-center px-4 py-2 rounded-full border transition-colors text-center
                     {{ $currentTag == $tag->slug 
                         ? ($tag->color ? 'bg-'.$tag->color.' text-white border-'.$tag->color : 'bg-accent text-accent-foreground border-accent') 
                         : 'bg-transparent border-zinc-200 dark:border-zinc-700 hover:bg-zinc-100 dark:hover:bg-zinc-800' }}">
@@ -25,13 +25,13 @@
             </div>
             
             <div class="flex justify-between mb-6">
-                <div class="flex space-x-2">
+                <div class="flex items-center space-x-2">
                     <a href="{{ route('posts.index', array_merge(request()->except('sort'), ['sort' => 'latest'])) }}" 
-                       class="px-3 py-1.5 rounded-md text-sm {{ request('sort', 'latest') == 'latest' ? 'bg-accent text-accent-foreground' : 'bg-zinc-100 dark:bg-zinc-700' }}">
+                       class="px-3 py-2 rounded-md text-sm {{ request('sort', 'latest') == 'latest' ? 'bg-accent text-accent-foreground' : 'bg-zinc-100 dark:bg-zinc-700' }}">
                         最新
                     </a>
                     <a href="{{ route('posts.index', array_merge(request()->except('sort'), ['sort' => 'commented'])) }}" 
-                       class="px-3 py-1.5 rounded-md text-sm {{ request('sort') == 'commented' ? 'bg-accent text-accent-foreground' : 'bg-zinc-100 dark:bg-zinc-700' }}">
+                       class="px-3 py-2 rounded-md text-sm {{ request('sort') == 'commented' ? 'bg-accent text-accent-foreground' : 'bg-zinc-100 dark:bg-zinc-700' }}">
                         熱門討論
                     </a>
                 </div>

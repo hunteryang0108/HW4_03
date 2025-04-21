@@ -10,11 +10,11 @@ env:
 		&& composer run post-root-package-install \
 		&& composer run post-create-project-cmd \
 		&& mv .env .env.local && mv ./database/database.sqlite ./database/local.sqlite \
-		&& sed -i '24iDB_DATABASE=./database/local.sqlite' ./.env.local \
+		&& sed -i '7s/en/zh-tw/;24iDB_DATABASE=./database/local.sqlite' ./.env.local \
 		&& composer run post-root-package-install \
 		&& composer run post-create-project-cmd \
 		&& mv .env .env.production && mv ./database/database.sqlite ./database/production.sqlite \
-		&& sed -i '2s/local/production/;4s/true/false/;5s/localhost/$(HOSTNAME)/;24iDB_DATABASE=./database/production.sqlite' ./.env.production \
+		&& sed -i '2s/local/production/;4s/true/false/;5s/localhost/$(HOSTNAME)/;7s/en/zh-tw/;24iDB_DATABASE=./database/production.sqlite' ./.env.production \
 		&& ln -sf /.env .env && ln -sf /server.hmr ./public/hot \
 		&& chmod -R a+w ./bootstrap/cache ./storage ./database"
 
